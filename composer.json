@@ -1,0 +1,13 @@
+{
+    "name": "jonathansilva/nano",
+    "description": "Nano Framework PHP",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Nano\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">= 8.4.0"
+    }
+}

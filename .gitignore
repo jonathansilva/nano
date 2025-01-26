@@ -1,0 +1,6 @@
+.idea
+.env
+.vscode/
+vendor/
+composer.phar
+composer.lock
