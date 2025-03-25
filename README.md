@@ -97,7 +97,7 @@ $app->get('/hello/{name}', function ($req, $res) {
 });
 
 $app->post('/api/test', function ($req, $res) {
-    $res->json(200, array('message' => 'It workerd!'));
+    $res->json(200, array('message' => 'Hello World!'));
 });
 
 $app->start();
@@ -115,7 +115,15 @@ $app->get(
 );
 ```
 
-O Callback/Controller não permite chamada de método ( exemplo: 'Namespace\\Login@index' )
+O Callback/Controller não permite chamada de método
+
+❌
+
+```php
+$app->get('/login', 'App\Callback\Page\Login@index');
+```
+
+✔️
 
 ```php
 $app->get('/login', 'App\Callback\Page\Login');
@@ -178,14 +186,14 @@ routes.xml
 
 Middlewares devem ser informados no terceiro parâmetro da rota ( [Routes](#routes) )
 
-Para configurar um middleware global, utilize o método 'use'. É possível configurar quantos forem necessários
+Para configurar um middleware **global**, utilize o método 'use'
 
 ```php
 $app->use('App\Middleware\A');
 $app->use('App\Middleware\B');
 ```
 
-Veja abaixo alguns exemplos de middlewares
+Veja abaixo alguns **exemplos** de middlewares
 
 ## Assert Middleware
 
@@ -203,15 +211,15 @@ Os formulários deverão ter um campo 'hidden' chamado 'csrf'
 
 *JWT*
 
-Se o token existir mas for inválido:
+1 ) Se o token existir mas for inválido:
 
-( Web ) Redireciona para a página 'login'
+[ Web ] Redireciona para a página 'login'
 
-( API ) Retorna 'Invalid or expired token'
+[ API ] Retorna 'Invalid or expired token'
 
 Caso for válido, o payload será enviado para o próximo middleware ou controller, podendo ser recuperado usando `$req->query()` ( veja um exemplo em [Role Middleware](#role-middleware) )
 
-Se não existir, vai para o próximo middleware ou executa o controller
+2 ) Se não existir, vai para o próximo middleware ou executa o controller
 
 ```php
 <?php
@@ -230,15 +238,17 @@ class Assert
 }
 ```
 
+> O terceiro parâmetro em `JWT::assert` é ignorado em rotas de api
+
 ## Ensure Middleware
 
 Será chamado em rotas onde a autenticação é obrigatória
 
 Se não encontrar o token:
 
-( Web ) Redireciona para a página 'login'
+[ Web ] Redireciona para a página 'login'
 
-( API ) Retorna 'Authorization token not found in request'
+[ API ] Retorna 'Authorization token not found in request'
 
 ```php
 <?php
@@ -256,9 +266,9 @@ class Ensure
 }
 ```
 
-A criação dos middlewares Assert e Ensure, obriga que as **rotas de api** tenham o prefixo '/api/', para evitar redirecionamento
+A criação dos middlewares Assert e Ensure, obriga que as **rotas de api**, tenham o prefixo '/api/' para evitar redirecionamento
 
-> O terceiro parâmetro em `JWT::assert` e `JWT::ensure`, não deve ser informado se a autenticação for para API
+> O terceiro parâmetro em `JWT::ensure` é ignorado em rotas de api
 
 ## Role Middleware
 
@@ -267,7 +277,11 @@ Será chamado em rotas onde o usuário precisa ter níveis de acesso específico
 > Coloque após o 'Ensure'
 
 ```php
-$app->get('/dashboard','App\Callback\Page\Dashboard', ['App\Middleware\Token\Ensure', 'App\Middleware\Token\Role::admin']);
+$app->get(
+    '/dashboard',
+    'App\Callback\Page\Dashboard',
+    ['App\Middleware\Token\Ensure', 'App\Middleware\Token\Role::admin']
+);
 ```
 
 ```php
@@ -316,9 +330,7 @@ class Book
         try {
             $filter = $req->query()->filter ?? null;
 
-            $data = new Service()->all($filter);
-
-            $res->view('book', array('books' => $data));
+            $res->view('books', array('books' => new Service()->all($filter)));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -343,19 +355,24 @@ class Create
     public function handle($req, $res)
     {
         try {
-            $headers = ['Content-Type: application/json'];
+            $url = 'https://...';
 
-            $body = json_encode([...]);
+            $headers = [
+                'Content-Type: application/json',
+                'Authorization: Bearer TOKEN'
+            ];
 
-            $data = $req->http()->post('https://...', $headers, $body);
+            $body = json_encode(array(...));
 
-            if ($data) {
-                $info = json_decode($data);
+            $data = $req->http()->post($url, $headers, $body);
 
-                $res->json($info->status, array('message' => $info->message));
+            if (!$data) {
+                throw new Exception('Erro ao realizar requisição');
             }
 
-            throw new Exception('Erro ao realizar requisição');
+            $info = json_decode($data);
+
+            $res->json($info->status, array('message' => $info->message));
         } catch (Exception $e) {
             Error::throwJsonException(500, $e->getMessage());
         }
@@ -367,7 +384,7 @@ class Create
 
 Regras: required, string, integer, float, bool, email, confirmed, min e max
 
-> Caso não houver erros na validação, um novo objeto será retornado em `$req->data()` com os dados 'sanitizados'
+> Caso não houver erros na validação, um novo objeto será retornado em `$req->data()` com os dados [sanitizados](https://github.com/jonathansilva/nano/blob/master/src/Core/Security/Sanitize.php)
 
 ```php
 <?php
@@ -396,9 +413,7 @@ class Create
 
             $data = $req->data();
 
-            $result = new Service()->register($data);
-
-            $res->json(201, array('message' => $result));
+            $res->json(201, array('message' => new Service()->register($data)));
         } catch (Exception $e) {
             Error::throwJsonException(500, $e->getMessage());
         }
@@ -445,7 +460,7 @@ class Read
     public function handle($req, $res)
     {
         try {
-            $res->json(200, array());
+            // TODO
         } catch (Exception $e) {
             Error::throwJsonException(500, $e->getMessage());
         }
@@ -464,14 +479,13 @@ base.html
 ```html
 <!DOCTYPE html>
 
-<html lang="en-US">
+<html lang="pt-BR">
     <head>
-	<title>{% yield title %}</title>
+        <title>{% yield title %}</title>
 
         <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <meta name="robots" content="noindex, nofollow">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="/assets/style.css">
     </head>
@@ -525,7 +539,7 @@ Para saber mais sobre este template engine, [clique aqui](https://codeshack.io/l
 
 # CORS
 
-Coloque no index.php de sua API e modifique se necessário
+Coloque no index.php de sua API e faça as modificações necessárias
 
 ```php
 header('Access-Control-Allow-Origin: *');
@@ -566,7 +580,7 @@ class Register
 
 POST /cadastro
 
-> Ao usar Cookie para salvar o JWT, nomeie-o de 'token'. Isso é necessário pois há funções na classe JWT que busca, verifica e remove o cookie, pelo nome 'token'
+> Ao usar Cookie para salvar o JWT, nomeie-o de 'token'. Isso é necessário pois há funções na classe JWT, que *busca*, *verifica* e *remove* o cookie pelo nome 'token'
 
 ```php
 <?php
@@ -592,10 +606,7 @@ class Create
 
             $data = $req->data();
 
-            $token = new Service()->register($data);
-
-            $req->setCookie('token', $token);
-
+            $req->setCookie('token', new Service()->register($data));
             $res->redirect('/me');
         } catch (Exception $e) {
             $req->setSession('errors', Error::parse($e->getMessage()));
@@ -628,45 +639,35 @@ class Create
 
     public function register(object $data): string
     {
-        $this->checkEmailExists($data->email);
+        if ($this->emailExists($data->email)) {
+            throw new Exception('O e-mail informado já existe');
+        }
 
         $hash = password_hash($data->password, PASSWORD_ARGON2ID);
 
-        $query = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
+        try {
+            $query = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
 
-        $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':name', $data->name, PDO::PARAM_STR);
-        $stmt->bindValue(':email', $data->email, PDO::PARAM_STR);
-        $stmt->bindValue(':password', $hash, PDO::PARAM_STR);
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':name', $data->name, PDO::PARAM_STR);
+            $stmt->bindValue(':email', $data->email, PDO::PARAM_STR);
+            $stmt->bindValue(':password', $hash, PDO::PARAM_STR);
+            $stmt->execute();
 
-        if (!$stmt->execute()) {
+            return JWT::encode(array('id' => $this->db->lastInsertId()));
+        } catch (PDOException $e) {
             throw new Exception('Erro ao cadastrar, tente novamente');
         }
-
-        $id = $this->db->lastInsertId();
-
-        $data = array('id' => $id); // Payload
-
-        $token = JWT::encode($data);
-
-        return $token;
     }
 
-    private function checkEmailExists(string $email): bool
+    private function emailExists(string $email): bool
     {
-        $query = "SELECT id FROM users WHERE email = :email";
+        $query = "SELECT id FROM users WHERE email = :email LIMIT 1";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->execute(array(':email' => $email));
 
-        $result = $stmt->fetch();
-
-        if ($result > 0) {
-            throw new Exception('O e-mail informado, já existe');
-        }
-
-        return true;
+        return (bool) $stmt->fetchColumn();
     }
 }
 ```
@@ -723,10 +724,7 @@ class Login
 
             $data = $req->data();
 
-            $token = new Service()->authenticate($data);
-
-            $req->setCookie('token', $token);
-
+            $req->setCookie('token', new Service()->authenticate($data));
             $res->redirect('/me');
         } catch (Exception $e) {
             $req->setSession('errors', Error::parse($e->getMessage()));
@@ -762,8 +760,7 @@ class Login
         $query = "SELECT id, password FROM users WHERE email = :email";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':email', $data->email, PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->execute(array(':email' => $data->email));
 
         $result = $stmt->fetchObject();
 
@@ -771,11 +768,7 @@ class Login
             throw new Exception('E-mail ou senha inválido');
         }
 
-        $data = array('id' => $result->id); // Payload
-
-        $token = JWT::encode($data);
-
-        return $token;
+        return JWT::encode(array('id' => $result->id));
     }
 }
 ```
@@ -818,9 +811,7 @@ class Me
         try {
             $id = $req->query()->data->id;
 
-            $data = new Service()->getUserInfoById($id);
-
-            $res->view('me', $data);
+            $res->view('me', array('data' => new Service()->getUserInfoById($id)));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
