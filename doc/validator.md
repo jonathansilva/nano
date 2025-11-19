@@ -7,7 +7,7 @@ Regras: required, string, integer, float, bool, email, confirmed, min e max
 ```php
 class Create
 {
-    public function handle($req, $res)
+    public function handle($req, $res): void
     {
         try {
             $rules = [
