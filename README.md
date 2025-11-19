@@ -32,16 +32,16 @@ $app->start();
 
 *Nano docs*
 
-**[Installation](doc/installation.md)**
-[Routes](doc/routes.md)
-[Request](doc/request.md)
-[Response](doc/response.md)
-[Template engine](doc/template.md)
-[Database](doc/database.md)
-[Validator](doc/validator.md)
-[CORS](doc/cors.md)
-[CSRF](doc/csrf.md)
-[cURL](doc/curl.md)
-[Form](doc/form.md)
-[JWT](doc/jwt.md)
-[Error handler](doc/error.md)
+* **[Installation](doc/installation.md)**
+* [Routes](doc/routes.md)
+* [Request](doc/request.md)
+* [Response](doc/response.md)
+* [Template engine](doc/template.md)
+* [Database](doc/database.md)
+* [Validator](doc/validator.md)
+* [CORS](doc/cors.md)
+* [CSRF](doc/csrf.md)
+* [cURL](doc/curl.md)
+* [Form](doc/form.md)
+* [JWT](doc/jwt.md)
+* [Error handler](doc/error.md)
