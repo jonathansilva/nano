@@ -42,6 +42,7 @@ $app->start();
 * [CORS](doc/cors.md)
 * [CSRF](doc/csrf.md)
 * [cURL](doc/curl.md)
+* [Env](doc/env.md)
 * [Form](doc/form.md)
 * [JWT](doc/jwt.md)
 * [Error handler](doc/error.md)

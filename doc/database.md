@@ -4,10 +4,12 @@
 use Nano\Core\Database;
 ```
 
-A classe `Database` retorna uma única instância de conexão *PDO* ( Singleton ) e deve ser chamada pelo método estático `instance`
+A classe `Database` retorna uma única instância de conexão *PDO* ( Singleton )
+
+> Deve ser chamada pelo método estático `instance`
 
 ```php
-class Create
+class User
 {
     private PDO $db;
 
@@ -15,17 +17,7 @@ class Create
     {
         $this->db = Database::instance();
     }
-}
-```
 
-*Executando query*
-
-```php
-public function findUserById(int $id): array|bool
-{
-    $stmt = $this->db->prepare("SELECT id, name FROM users WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-
-    return $stmt->fetch();
+    // ...
 }
 ```
