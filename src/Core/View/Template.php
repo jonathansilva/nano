@@ -3,48 +3,56 @@
 namespace Nano\Core\View;
 
 use Nano\Core\Env;
+use Exception;
 
 class Template
 {
 	private static array $blocks = [];
 
-    private static bool $cache_enabled;
+    private static bool $cache;
 
-	private static string $cache_path = 'cache/';
-    private static string $views_path = '/views';
+	private static string $cachePath = 'cache/';
 
 	public static function render(string $file, ?array $data = []): void
     {
-        self::$cache_enabled = (bool) Env::fetch('TEMPLATE_ENGINE_CACHE') ?? false;
+        self::$cache = (bool) Env::fetch('TEMPLATE_ENGINE_CACHE') ?? false;
 
-		$cached_file = self::cache($file);
+		$cachedFile = self::cache($file);
 
 	    extract($data, EXTR_SKIP);
 
-	   	require $cached_file;
+	   	require $cachedFile;
 	}
 
 	private static function cache(string $file): string
     {
-		if (!file_exists(self::$cache_path)) {
-		  	mkdir(self::$cache_path, 0744);
+		if (!file_exists(self::$cachePath)) {
+		  	mkdir(self::$cachePath, 0744);
 		}
 
-	    $cached_file = self::$cache_path . str_replace(array('/', '.html'), array('_', ''), $file . '.php');
+        $templatePath = self::getTemplatePath($file);
 
-	    if (!self::$cache_enabled || !file_exists($cached_file) || filemtime($cached_file) < filemtime($file)) {
+        if (!file_exists($templatePath)) {
+            throw new Exception("Template file '{$file}.html' not found at expected path");
+        }
+
+	    $cachedFile = self::$cachePath . str_replace(['/', '.html'], ['_', ''], $file . '.php');
+
+	    if (!self::$cache || !file_exists($cachedFile) || filemtime($cachedFile) < filemtime($templatePath)) {
 			$code = self::include($file);
 			$code = self::compile($code);
 
-	        file_put_contents($cached_file, '<?php class_exists(\'' . __CLASS__ . '\') or exit; ?>' . PHP_EOL . $code);
+	        file_put_contents($cachedFile, '<?php class_exists(\'' . __CLASS__ . '\') or exit; ?>' . PHP_EOL . $code);
 	    }
 
-		return $cached_file;
+		return $cachedFile;
 	}
 
     private static function include(string $file): string
     {
-		$code = file_get_contents(dirname(__DIR__, 6) . self::$views_path . "/{$file}.html");
+        $templatePath = self::getTemplatePath($file);
+
+		$code = file_get_contents($templatePath);
 
         $pattern = '/{% ?(extends|include) ([^\.\'"]+?) ?%}/i';
 
@@ -100,10 +108,8 @@ class Template
 		return $code;
 	}
 
-	public static function clear(): void
+    private static function getTemplatePath(string $file): string
     {
-		foreach (glob(self::$cache_path . '*') as $file) {
-			unlink($file);
-		}
-	}
+        return dirname(__DIR__, 6) . "/views/{$file}.html";
+    }
 }
