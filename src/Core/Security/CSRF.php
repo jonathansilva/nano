@@ -6,6 +6,10 @@ class CSRF
 {
     public static function assert(object $req, object $res): void
     {
+        if (str_starts_with($req->path(), '/api/')) {
+            return;
+        }
+
         if ($req->method() == 'GET') {
             $req->setSession('path', $req->path());
             $req->setSession('csrf', bin2hex(random_bytes(32)));
@@ -13,12 +17,18 @@ class CSRF
             return;
         }
 
-        if (!str_starts_with($req->path(), '/api/')) {
-            $field = $req->data('csrf');
+        $field = trim($req->data('csrf'));
 
-            if (!(mb_strlen(trim($field)) > 0 && hash_equals($req->session('csrf'), $field))) {
-                $res->redirect($req->session('path'));
-            }
+        if (empty($field)) {
+            error_log('The "csrf" field is empty');
+
+            $res->redirect($req->session('path'));
+        }
+
+        if (!hash_equals($req->session('csrf'), $field)) {
+            error_log('The "csrf" field is invalid');
+
+            $res->redirect($req->session('path'));
         }
     }
 }

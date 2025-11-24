@@ -56,10 +56,10 @@ Crie os arquivos `.env.example` e `.gitignore` na raiz do seu projeto
 .env.example
 
 ```
-DB_HOST=localhost
-DB_NAME=database
-DB_USER=root
-DB_PASS=password
+DATABASE_HOST=localhost
+DATABASE_NAME=database
+DATABASE_USER=root
+DATABASE_PASS=password
 
 JWT_KEY=textoSecretoAqui
 JWT_EXP_IN_HOURS=8
@@ -67,10 +67,7 @@ JWT_EXP_IN_HOURS=8
 COOKIE_EXP_IN_DAYS=1
 COOKIE_DOMAIN=localhost
 COOKIE_HTTPS=false
-COOKIE_HTTPONLY=true
 COOKIE_SAMESITE=Strict
-
-CURL_SSL_VERIFYPEER=false
 
 TEMPLATE_ENGINE_CACHE=false
 ```

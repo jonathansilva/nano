@@ -2,7 +2,6 @@
 
 namespace Nano\Core;
 
-use Nano\Core\Env;
 use CurlHandle;
 use Exception;
 
@@ -57,9 +56,9 @@ class Curl
         curl_setopt($this->curl, CURLOPT_URL, $url);
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, (bool) Env::fetch('CURL_SSL_VERIFYPEER'));
-        curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($this->curl, CURLOPT_TIMEOUT, 15);
+        curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($this->curl, CURLOPT_TIMEOUT, 60);
 
         $data = curl_exec($this->curl);
         $code = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);

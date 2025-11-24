@@ -9,12 +9,12 @@ class Error
         return (json_validate($message)) ? json_decode($message) : [$message];
     }
 
-	public static function throwJsonException(int $statusCode, string|object $message): never
+	public static function throwJsonException(int $code, string|object $message): never
 	{
-        header("HTTP/1.1 {$statusCode}");
-        header('Content-type: application/json');
+        header("HTTP/1.1 {$code}");
+        header('Content-Type: application/json');
 
-		echo json_encode(array('data' => array('errors' => self::parse($message))));
+		echo json_encode(['data' => ['errors' => self::parse($message)]]);
 
         die;
 	}

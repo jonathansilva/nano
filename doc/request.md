@@ -83,12 +83,14 @@ Retorna os cookies da requisição
 
 ### `setCookie(string $key, string $value): bool`
 
-Cria um cookie com parâmetros de expiração, domínio, *path* e segurança definidos por variáveis de ambiente
+Cria um cookie com parâmetros definidos por variáveis de ambiente
 
-| Parâmetro | Tipo       | Descrição        |
-| :--------- | :--------- | :----------------- |
-| `$key`   | `string` | Nome para a chave  |
-| `$value` | `string` | Valor para a chave |
+| Parâmetro | Tipo        | Descrição                 |
+| :--------- | :---------- | :-------------------------- |
+| `$key`   | `string`  | Nome para a chave           |
+| `$value` | `string`  | Valor para a chave          |
+
+> O cookie será criado com **httponly** habilitado
 
 ### `hasCookie(string $key): bool`
 

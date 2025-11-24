@@ -17,7 +17,7 @@ try {
 }
 ```
 
-### `throwJsonException(int $statusCode, string|object $message): never`
+### `throwJsonException(int $code, string|object $message): never`
 
 Imprime o erro em formato JSON
 

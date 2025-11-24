@@ -3,32 +3,26 @@
 Verbos: GET, POST, PUT, PATCH e DELETE
 
 ```php
-class Create
-{
-    public function handle($req, $res): void
-    {
-        try {
-            $url = 'https://...';
+try {
+    $url = 'https://...';
 
-            $headers = [
-                'Content-Type: application/json',
-                'Authorization: Bearer TOKEN'
-            ];
+    $headers = [
+        'Content-Type: application/json',
+        'Authorization: Bearer TOKEN'
+    ];
 
-            $body = json_encode(array(...));
+    $body = json_encode(array(...));
 
-            $data = $req->http()->post($url, $headers, $body);
+    $data = $req->http()->post($url, $headers, $body);
 
-            if (!$data) {
-                throw new Exception('Erro ao realizar requisição');
-            }
-
-            $info = json_decode($data);
-
-            $res->json($info->status, ['message' => $info->message]);
-        } catch (Exception $e) {
-            Error::throwJsonException(500, $e->getMessage());
-        }
+    if (!$data) {
+        throw new Exception('Erro ao realizar requisição');
     }
+
+    $info = json_decode($data);
+
+    $res->json($info->status, ['message' => $info->message]);
+} catch (Exception $e) {
+    Error::throwJsonException(500, $e->getMessage());
 }
 ```

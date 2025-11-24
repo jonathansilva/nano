@@ -6,9 +6,9 @@ use Nano\Core\View\Template;
 
 class Response
 {
-    public function view(string $file, ?array $arr = []): ?Template
+    public function view(string $file, ?array $data = []): ?Template
     {
-        return Template::render($file, $arr);
+        return Template::render($file, $data);
     }
 
     public function redirect(string $path, ?int $code = 302): never
@@ -20,13 +20,13 @@ class Response
         die;
     }
 
-    public function json(int $status, mixed $data): void
+    public function json(int $code, mixed $data): void
     {
-        http_response_code($status);
+        http_response_code($code);
 
         header('Content-Type: application/json');
 
-        echo json_encode(array('data' => $data), JSON_PRETTY_PRINT);
+        echo json_encode(['data' => $data], JSON_PRETTY_PRINT);
 
         die;
     }

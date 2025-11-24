@@ -124,7 +124,7 @@ class Router
     {
         $routes = $this->routes[$this->method] ?? [];
 
-        $route = array_filter($routes, function ($checkRoute) {
+        $route = array_filter($routes, function ($checkRoute): bool|int {
             $pattern = preg_replace('#\{.*?\}#', '([^/]+)', $checkRoute['path']);
             $pattern = '#^' . $pattern . '/?$#';
 
@@ -138,8 +138,16 @@ class Router
     {
         header('HTTP/1.1 404 Not Found');
 
+        error_log('"notFound" function has not been defined');
+
         if (!isset($this->notFoundCallback)) {
-            throw new Exception('"notFound" function has not been defined');
+            if (!str_starts_with($this->request->path(), '/api/')) {
+                echo 'Page not found';
+
+                return;
+            }
+
+            Error::throwJsonException(404, 'Route not found');
         }
 
         $this->handlerCallback($this->notFoundCallback);
