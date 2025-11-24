@@ -9,7 +9,7 @@ use Nano\Core\Security\JWT;
 Retorna um *access token* com os dados salvos no **payload**
 
 ```php
-JWT::encode(["id" => $user->id]);
+JWT::encode(["sub" => $user->id]);
 ```
 
 > Caso for salvar no Cookie, nomeie de `token`. Isso é necessário pois há funções na classe JWT que busca, verifica e remove o cookie pela chave *token*
@@ -22,7 +22,7 @@ Retorna os dados do payload, caso for válido
 JWT::decode($token);
 ```
 
-### `assert(object $req, object $res, ?string $path): void`
+### `assert(object $req, object $res, ?string $redirectTo): void`
 
 Verifica se o token existe no Cookie ( Web ) ou cabeçalho Authorization ( API ) e é válido
 
@@ -42,7 +42,7 @@ Caso for válido, o payload será enviado para o próximo middleware ou controll
 
 2 ) Se não existir, vai para o próximo middleware ou executa o controller
 
-### `ensure(object $req, object $res, ?string $path): void`
+### `ensure(object $req, object $res, ?string $redirectTo): void`
 
 > Use em rotas onde a autenticação é obrigatória ( [Ensure Middleware](routes.md#ensure-middleware) )
 

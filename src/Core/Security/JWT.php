@@ -3,10 +3,11 @@
 namespace Nano\Core\Security;
 
 use Nano\Core\{ Env, Error };
+use Exception;
 
 class JWT
 {
-    public static function assert(object $req, object $res, ?string $path): void
+    public static function assert(object $req, object $res, ?string $redirectTo): void
     {
         $info = self::getData($req, $req->path());
 
@@ -17,14 +18,14 @@ class JWT
 
             if ($info['type'] == 'web') {
                 $req->removeCookie('token');
-                $res->redirect($path);
+                $res->redirect($redirectTo);
             }
         }
 
         $req->setQuery('data', $info['data']);
     }
 
-    public static function ensure(object $req, object $res, ?string $path): void
+    public static function ensure(object $req, object $res, ?string $redirectTo): void
     {
         if (str_starts_with($req->path(), '/api/')) {
             if (!$req->authorizationBearer()) {
@@ -35,7 +36,7 @@ class JWT
         }
 
         if (!$req->hasCookie('token')) {
-            $res->redirect($path);
+            $res->redirect($redirectTo);
         }
     }
 
@@ -89,10 +90,14 @@ class JWT
 
     private static function getKey(): string
     {
-        return Env::fetch('JWT_KEY');
+        $envKey = trim(Env::fetch('JWT_KEY') ?? '');
+
+        $key = (strlen($envKey) > 0) ? $envKey : null;
+
+        return $key ?? throw new Exception('[JWT] Erro de autenticação no servidor');
     }
 
-    private static function extractData(?string $token): mixed
+    private static function decodeTokenPayload(?string $token): mixed
     {
         return $token ? self::decode($token) : '';
     }
@@ -100,14 +105,10 @@ class JWT
     private static function getData(object $req, string $path): array
     {
         if (str_starts_with($path, '/api/')) {
-            $data = self::extractData($req->authorizationBearer());
-
-            return ['type' => 'api', 'data' => $data];
+            return ['type' => 'api', 'data' => self::decodeTokenPayload($req->authorizationBearer())];
         }
 
-        $data = self::extractData($req->cookie('token'));
-
-        return ['type' => 'web', 'data' => $data];
+        return ['type' => 'web', 'data' => self::decodeTokenPayload($req->cookie('token'))];
     }
 
     private static function base64url_encode(string $data): string

@@ -147,7 +147,7 @@ class Role
     public function handle($req, $res, $args): void
     {
         try {
-            $id = $req->query()->data->id;
+            $id = $req->query()->data->sub;
 
             $role = new Service()->getRoleByUserId($id);
 

@@ -22,6 +22,6 @@ Os formulários deverão ter um campo *hidden* chamado **csrf**
 <input type="hidden" name="csrf" value="{{ $csrf }}">
 ```
 
-> O uso do CSRF necessita do `session_start();` no index.php
+> Coloque `session_start();` no index.php
 
 Veja também: [Form](form.md)
