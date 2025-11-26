@@ -38,13 +38,6 @@ class Router
         return $method;
     }
 
-    public function __call(string $method, array $args): Router
-    {
-        $this->addRoute(strtoupper($method), ...$args);
-
-        return $this;
-    }
-
     public function use(string $callback): void
     {
         $this->globalsMiddlewares[] = $callback;
@@ -55,18 +48,43 @@ class Router
         $this->notFoundCallback = $callback;
     }
 
-    private function addRoute(string $method, string $path, string|Closure $callback, array $middleware = []): void
+    public function get(string $path, string|Closure $callback, array $middlewares = []): void
+    {
+        $this->addRoute('GET', $path, $callback, $middlewares);
+    }
+
+    public function post(string $path, string|Closure $callback, array $middlewares = []): void
+    {
+        $this->addRoute('POST', $path, $callback, $middlewares);
+    }
+
+    public function put(string $path, string|Closure $callback, array $middlewares = []): void
+    {
+        $this->addRoute('PUT', $path, $callback, $middlewares);
+    }
+
+    public function patch(string $path, string|Closure $callback, array $middlewares = []): void
+    {
+        $this->addRoute('PATCH', $path, $callback, $middlewares);
+    }
+
+    public function delete(string $path, string|Closure $callback, array $middlewares = []): void
+    {
+        $this->addRoute('DELETE', $path, $callback, $middlewares);
+    }
+
+    private function addRoute(string $method, string $path, string|Closure $callback, array $middlewares = []): void
     {
         $newRoute = [
             'path' => $path,
             'callback' => $callback
         ];
 
-        if (!empty($middleware)) {
-            $newRoute['middleware'] = $middleware;
+        if (!empty($middlewares)) {
+            $newRoute['middleware'] = $middlewares;
         }
 
-        $this->routes[$method][] = $newRoute;
+        $this->routes[strtoupper($method)][] = $newRoute;
     }
 
     public function load(string $path): void
@@ -137,8 +155,6 @@ class Router
     private function routeNotFound(): void
     {
         header('HTTP/1.1 404 Not Found');
-
-        error_log('"notFound" function has not been defined');
 
         if (!isset($this->notFoundCallback)) {
             if (!str_starts_with($this->request->path(), '/api/')) {
