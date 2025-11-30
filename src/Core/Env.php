@@ -2,8 +2,6 @@
 
 namespace Nano\Core;
 
-use Exception;
-
 class Env
 {
     private static array $env = [];
@@ -31,16 +29,12 @@ class Env
 
     private static function loadEnvFile(): void
     {
+        self::$loaded = true;
+
         $file = dirname(__DIR__, 5) . '/.env';
 
-        if (!file_exists($file)) {
-            self::$loaded = true;
-
-            throw new Exception("The {$file} file was not found");
+        if (file_exists($file)) {
+            self::$env = parse_ini_file($file, true, INI_SCANNER_RAW);
         }
-
-        self::$env = parse_ini_file($file, true, INI_SCANNER_RAW);
-
-        self::$loaded = true;
     }
 }
