@@ -126,22 +126,22 @@ class Request
         return $this->cookie;
     }
 
-    public function setCookie(string $key, string $value): bool
+    public function setCookie(string $key, string $value, ?string $path = '/'): bool
     {
         $this->cookie[$key] = $value;
 
         $envExpires = (int) Env::fetch('COOKIE_EXP_IN_DAYS');
-        $envDomain = trim(Env::fetch('COOKIE_DOMAIN') ?? '');
+        $envDomain = Env::fetch('COOKIE_DOMAIN') ?? '';
         $envSameSite = ucfirst(Env::fetch('COOKIE_SAMESITE') ?? '');
 
         $expires = ($envExpires > 0) ? $envExpires : 30;
         $domain = (strlen($envDomain) > 0) ? $envDomain : '';
-        $secure = (bool) Env::fetch('COOKIE_HTTPS');
+        $secure = filter_var(Env::fetch('COOKIE_HTTPS'), FILTER_VALIDATE_BOOLEAN);
         $sameSite = in_array($envSameSite, ['Strict', 'Lax', 'None']) ? $envSameSite : 'Strict';
 
         return setcookie($key, $value, [
             'expires' => time() + (3600 * 24) * $expires,
-            'path' => '/',
+            'path' => $path,
             'domain' => $domain,
             'secure' => $secure,
             'httponly' => true,
@@ -159,7 +159,7 @@ class Request
         unset($this->cookie[$key]);
         unset($_COOKIE[$key]);
 
-        $envDomain = trim(Env::fetch('COOKIE_DOMAIN') ?? '');
+        $envDomain = Env::fetch('COOKIE_DOMAIN') ?? '';
 
         $domain = (strlen($envDomain) > 0) ? $envDomain : '';
 

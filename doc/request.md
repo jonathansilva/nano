@@ -81,14 +81,18 @@ Retorna os cookies da requisição
 | :--------- | :---------- | :------------------------- |
 | `$key`   | `?string` | Nome da chave ( opcional ) |
 
-### `setCookie(string $key, string $value): bool`
+### `setCookie(string $key, string $value, ?string $path = '/'): bool`
 
-Cria um cookie com parâmetros definidos por variáveis de ambiente
+Cria um cookie com parâmetros definidos por [variáveis de ambiente](installation.md)
+
+* Se `$path` for fornecido, o valor será definido como *path*
+* Se `$path` for null ( padrão ), usa `'/'` como *path*
 
 | Parâmetro | Tipo        | Descrição                 |
 | :--------- | :---------- | :-------------------------- |
 | `$key`   | `string`  | Nome para a chave           |
 | `$value` | `string`  | Valor para a chave          |
+| `$path`  | `?string` | Caminho da URI ( opcional ) |
 
 > O cookie será criado com **httponly** habilitado
 
