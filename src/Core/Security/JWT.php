@@ -40,25 +40,27 @@ class JWT
         }
     }
 
-    public static function encode(array $data): string
+    public static function encode(array $data): object
     {
         // Header
         $headers = ['alg' => 'HS256', 'typ' => 'JWT'];
-        $headers_encoded = self::base64url_encode(json_encode($headers));
-
-        $expirationInHours = (int) Env::fetch('JWT_EXP_IN_HOURS');
+        $headersEncoded = self::base64url_encode(json_encode($headers));
 
         // Payload
-        $payload = array_merge($data, ['exp' => (time() + 3600) * $expirationInHours]);
-        $payload_encoded = self::base64url_encode(json_encode($payload));
+        $exp = self::getExpTime();
 
-        $key = self::getKey();
+        $payloadAccess = array_merge($data, ['exp' => $exp['access']]);
+        $payloadAccessEncoded = self::base64url_encode(json_encode($payloadAccess));
 
         // Signature
-        $signature = hash_hmac('SHA256', "{$headers_encoded}.{$payload_encoded}", $key, true);
-        $signature_encoded = self::base64url_encode($signature);
+        $key = self::getKey();
 
-        return "{$headers_encoded}.{$payload_encoded}.{$signature_encoded}";
+        $signatureAccess = hash_hmac('SHA256', "{$headersEncoded}.{$payloadAccessEncoded}", $key, true);
+        $signatureAccessEncoded = self::base64url_encode($signatureAccess);
+
+        return (object) [
+            'access' => "{$headersEncoded}.{$payloadAccessEncoded}.{$signatureAccessEncoded}"
+        ];
     }
 
     public static function decode(string $token): false|object
@@ -66,31 +68,48 @@ class JWT
         $parts = explode('.', $token);
         $header = base64_decode($parts[0]);
         $payload = base64_decode($parts[1]);
-        $signature_provided = $parts[2];
+        $signatureProvided = $parts[2];
 
         $obj = json_decode($payload);
 
-        $is_token_expired = ($obj->exp - time()) < 0;
+        $isTokenExpired = ($obj->exp ?? 0) - time() < 0;
 
         $key = self::getKey();
 
-        $base64_url_header = self::base64url_encode($header);
-        $base64_url_payload = self::base64url_encode($payload);
-        $signature = hash_hmac('SHA256', "{$base64_url_header}.{$base64_url_payload}", $key, true);
-        $base64_url_signature = self::base64url_encode($signature);
+        $base64UrlHeader = self::base64url_encode($header);
+        $base64UrlPayload = self::base64url_encode($payload);
+        $signature = hash_hmac('SHA256', "{$base64UrlHeader}.{$base64UrlPayload}", $key, true);
+        $base64UrlSignature = self::base64url_encode($signature);
 
-        $is_signature_valid = hash_equals($base64_url_signature, $signature_provided);
+        $isSignatureValid = hash_equals($base64UrlSignature, $signatureProvided);
 
-        if ($is_token_expired || !$is_signature_valid) {
+        if ($isTokenExpired || !$isSignatureValid) {
             return false;
         }
 
         return $obj;
     }
 
+    private static function getExpTime(): array
+    {
+        $envAccessType = strtolower(Env::fetch('JWT_ACCESS_EXP_TYPE'));
+        $envAccessTime = (int) Env::fetch('JWT_ACCESS_EXP_TIME');
+
+        $accessTime = ($envAccessTime > 0) ? $envAccessTime : null;
+
+        return [
+            'access' => match ($envAccessType) {
+                'minutes' => time() + 60 * ($accessTime ?? 5),
+                'hours' => time() + 3600 * ($accessTime ?? 1),
+                'days' => time() + (3600 * 24) * ($accessTime ?? 1),
+                default => time() + 3600 * ($accessTime ?? 1) // hours
+            }
+        ];
+    }
+
     private static function getKey(): string
     {
-        $envKey = trim(Env::fetch('JWT_KEY') ?? '');
+        $envKey = Env::fetch('JWT_KEY') ?? '';
 
         $key = (strlen($envKey) > 0) ? $envKey : null;
 

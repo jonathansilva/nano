@@ -4,15 +4,32 @@
 use Nano\Core\Security\JWT;
 ```
 
-### `encode(array $data): string`
+### `encode(array $data): object`
 
-Retorna um *access token* com os dados salvos no **payload**
+Gera um *access token* com parâmetros definidos por [variáveis de ambiente](installation.md)
+
+Os dados serão salvos no **payload** do token
 
 ```php
-JWT::encode(["sub" => $user->id]);
+JWT::encode(["sub" => $user->id])->access;
 ```
 
-> Caso for salvar no Cookie, nomeie de `token`. Isso é necessário pois há funções na classe JWT que busca, verifica e remove o cookie pela chave *token*
+| Chave                   | Valor                  | Descrição            |
+| :---------------------- | :--------------------- | :--------------------- |
+| `JWT_KEY`             | ( qualquer coisa )           | Frase secreta          |
+| `JWT_ACCESS_EXP_TYPE` | `minutes\|hours\|days` | Minutos, horas ou dias |
+| `JWT_ACCESS_EXP_TIME` | ( maior que 0 )        | Tempo de expiração   |
+
+> `JWT_KEY` é obrigatório
+
+* Se `JWT_ACCESS_EXP_TYPE` não for definido, recebe o valor `hours`
+* Se `JWT_ACCESS_EXP_TIME` não for definido:
+  * Caso `JWT_ACCESS_EXP_TYPE` seja `hours` ou `days`, recebe o valor `1`
+  * Caso `JWT_ACCESS_EXP_TYPE` seja `minutes`, recebe o valor `5`
+
+---
+
+Caso for salvar no Cookie, nomeie de `token`. Isso é necessário pois há funções na classe JWT que busca, verifica e remove o cookie pela chave *token*
 
 ### `decode(string $token): false|object`
 
@@ -24,7 +41,7 @@ JWT::decode($token);
 
 ### `assert(object $req, object $res, ?string $redirectTo): void`
 
-Verifica se o token existe no Cookie ( Web ) ou cabeçalho Authorization ( API ) e é válido
+Verifica se existe um token válido no Cookie ( Web ) ou cabeçalho Authorization ( API )
 
 > Use como middleware global
 
@@ -58,4 +75,4 @@ Se não encontrar o token:
 
 ---
 
-O terceiro parâmetro em `JWT::assert` e `JWT::ensure` é ignorado em rotas de api
+O terceiro parâmetro em `JWT::assert` e `JWT::ensure` é opcional e ignorado em rotas de api
