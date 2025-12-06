@@ -24,7 +24,9 @@ class Env
             self::loadEnvFile();
         }
 
-        return self::$env[$key] ?? null;
+        $value = self::$env[$key] ?? null;
+
+        return is_string($value) ? trim($value) : null;
     }
 
     private static function loadEnvFile(): void

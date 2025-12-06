@@ -15,7 +15,7 @@ class Template
 
 	public static function render(string $file, ?array $data = []): void
     {
-        self::$cache = (bool) Env::fetch('TEMPLATE_ENGINE_CACHE') ?? false;
+        self::$cache = filter_var(Env::fetch('TEMPLATE_ENGINE_CACHE'), FILTER_VALIDATE_BOOLEAN);
 
 		$cachedFile = self::cache($file);
 
