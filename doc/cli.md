@@ -25,8 +25,6 @@ Lista os comandos disponíveis
 
 ---
 
-Para limpar o cache, é necessário que a [variável de ambiente](installation.md) `TEMPLATE_ENGINE_CACHE` esteja habilitada
-
 **Composer**
 
 > composer `<command>`
