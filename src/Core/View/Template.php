@@ -112,4 +112,13 @@ class Template
     {
         return dirname(__DIR__, 6) . "/views/{$file}.html";
     }
+
+    public static function clear(): void
+    {
+        if (file_exists(self::$cachePath)) {
+            foreach (glob(self::$cachePath . '*') as $file) {
+                @unlink($file);
+            }
+        }
+    }
 }

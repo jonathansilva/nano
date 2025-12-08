@@ -13,7 +13,9 @@ Certifique-se de que as extensões abaixo, estejam habilitadas no *php.ini*
 
 **Instalação**
 
-`composer require jonathansilva/nano`
+```bash
+composer require jonathansilva/nano
+```
 
 *Nginx*
 
@@ -51,6 +53,8 @@ server {
 }
 ```
 
+---
+
 Crie os arquivos `.env.example` e `.gitignore` na raiz do seu projeto
 
 .env.example
@@ -65,7 +69,7 @@ JWT_KEY=textoSecretoAqui
 JWT_ACCESS_EXP_TYPE=hours
 JWT_ACCESS_EXP_TIME=8
 
-COOKIE_EXP_IN_DAYS=1
+COOKIE_EXP_IN_DAYS=30
 COOKIE_DOMAIN=localhost
 COOKIE_HTTPS=false
 COOKIE_SAMESITE=Strict

@@ -39,6 +39,7 @@ $app->start();
 * [Template engine](doc/template.md)
 * [Database](doc/database.md)
 * [Validator](doc/validator.md)
+* [CLI](doc/cli.md)
 * [CORS](doc/cors.md)
 * [CSRF](doc/csrf.md)
 * [cURL](doc/curl.md)
