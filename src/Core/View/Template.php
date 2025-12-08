@@ -108,15 +108,27 @@ class Template
 		return $code;
 	}
 
+    private static function getRootPath(): string
+    {
+        return dirname(__DIR__, 6);
+    }
+
+    private static function getCachedFilePath(): string
+    {
+        return self::getRootPath() . '/public/' . self::$cachePath;
+    }
+
     private static function getTemplatePath(string $file): string
     {
-        return dirname(__DIR__, 6) . "/views/{$file}.html";
+        return self::getRootPath() . "/views/{$file}.html";
     }
 
     public static function clear(): void
     {
-        if (file_exists(self::$cachePath)) {
-            foreach (glob(self::$cachePath . '*') as $file) {
+        $cachedFilePath = self::getCachedFilePath();
+
+        if (file_exists($cachedFilePath)) {
+            foreach (glob($cachedFilePath . '*') as $file) {
                 @unlink($file);
             }
         }
