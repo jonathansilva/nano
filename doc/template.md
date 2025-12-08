@@ -2,9 +2,9 @@
 
 O template utilizado foi desenvolvido por David Adams ( https://codeshack.io )
 
-> Foram feitas pequenas alterações no código original
+Foram feitas pequenas alterações no código original
 
-base.html
+> base.html
 
 ```html
 <!DOCTYPE html>
@@ -29,7 +29,7 @@ base.html
 </html>
 ```
 
-home.html
+> home.html
 
 ```html
 {% extends base %}
@@ -41,11 +41,11 @@ home.html
 {% endblock %}
 ```
 
+Salve os arquivos *.html* no diretório `views`
+
+> Home.php
+
 ```php
-<?php
-
-namespace App\Callback\Page;
-
 class Home
 {
     public function handle($req, $res): void
@@ -55,7 +55,7 @@ class Home
 }
 ```
 
-> Crie o diretório `views`
+---
 
 Exibindo os erros de validação ( [Validator](validator.md) )
 
@@ -66,3 +66,5 @@ Exibindo os erros de validação ( [Validator](validator.md) )
 ```
 
 Para saber mais sobre este template engine, [clique aqui](https://codeshack.io/lightweight-template-engine-php)
+
+Veja também: [CLI](cli.md)
