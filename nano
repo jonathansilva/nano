@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../../autoload.php';
 
 use Nano\Core\View\Template;
 use Throwable;
@@ -20,9 +20,9 @@ switch ($command) {
         try {
             Template::clear();
 
-            echo 'Cache limpo com sucesso';
+            echo 'Cache limpo com sucesso' . PHP_EOL;
         } catch (Throwable $e) {
-            echo 'Erro ao limpar cache: ' . $e->getMessage();
+            echo 'Erro ao limpar cache: ' . $e->getMessage() . PHP_EOL;
 
             exit(1);
         }
@@ -30,7 +30,7 @@ switch ($command) {
         break;
     case 'help':
     default:
-        echo 'clear => Limpa o cache do Template engine';
+        echo 'clear => Limpa o cache do Template engine' . PHP_EOL;
         break;
 }
 
