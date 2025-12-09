@@ -9,12 +9,6 @@
 }
 ```
 
-Execute o comando abaixo, caso esteja configurando após a instalação do framework
-
-```bash
-composer install
-```
-
 ### `nano:cache`
 
 Limpa o cache do Template engine
