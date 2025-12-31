@@ -25,7 +25,7 @@ $app->post('/api/register', function ($req, $res): void {
     $res->json(201, array('message' => 'Cadastrado com sucesso'));
 });
 
-$app->start();
+$app->run();
 ```
 
 ---

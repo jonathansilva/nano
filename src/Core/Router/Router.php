@@ -113,7 +113,7 @@ class Router
         $this->addRoute($method, $path, $callback, $middlewares);
 	}
 
-    public function start(): mixed
+    public function run(): mixed
     {
         $route = $this->findRoute();
 
