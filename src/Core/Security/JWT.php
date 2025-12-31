@@ -66,11 +66,15 @@ class JWT
     public static function decode(string $token): false|object
     {
         $parts = explode('.', $token);
-        $header = base64_decode($parts[0]);
-        $payload = base64_decode($parts[1]);
-        $signatureProvided = $parts[2];
+        $header = base64_decode($parts[0] ?? '');
+        $payload = base64_decode($parts[1] ?? '');
+        $signatureProvided = $parts[2] ?? '';
 
         $obj = json_decode($payload);
+
+        if (!$obj) {
+            return false;
+        }
 
         $isTokenExpired = ($obj->exp ?? 0) - time() < 0;
 
