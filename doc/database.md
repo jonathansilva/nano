@@ -1,23 +1,19 @@
 # Database
 
-```php
-use Nano\Core\Database;
-```
+A classe `Database` gerencia a conexão com o banco de dados utilizando *PDO*. A configuração é feita via [variáveis de ambiente](installation.md)
 
-A classe `Database` retorna uma **única instância** de conexão *PDO* ( Singleton ), com parâmetros definidos por [variáveis de ambiente](installation.md)
-
-> Deve ser chamada pelo método estático `instance`
+> A conexão é injetada automaticamente pelo [Container](container.md)
 
 ```php
-class User
+final readonly class UserRepository
 {
-    private PDO $db;
+    public function __construct(private PDO $db) {}
 
-    public function __construct()
+    public function findByEmail(string $email): ?UserEntity
     {
-        $this->db = Database::instance();
-    }
+        $stmt = $this->db->prepare('...');
 
-    // ...
+        // ...
+    }
 }
 ```
