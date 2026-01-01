@@ -56,7 +56,8 @@ Para carregar um arquivo de rotas, utilize o método `load`
 $app->load(__DIR__ . '/../src/routes.xml');
 ```
 
-routes.xml
+<details>
+<summary>routes.xml</summary>
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -88,6 +89,7 @@ routes.xml
     </route>
 </routes>
 ```
+</details>
 
 # Middleware
 
