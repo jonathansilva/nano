@@ -3,29 +3,45 @@
 Verbos: GET, POST, PUT, PATCH e DELETE
 
 ```php
+$app = Nano\Core\Router\Instance::create();
+
+// Rota não encontrada (opcional)
+$app->notFound('App\Actions\NotFoundAction');
+
 $app->get(
     '/me', // Path
-    'App\Callback\Page\Me', // Callback
-    ['App\Middleware\Token\Ensure'] // Middleware
+    'App\Actions\Profile\ShowProfileAction', // Action
+    ['App\Middlewares\Token\EnsureMiddleware'] // Middlewares (opcional)
 );
+
+$app->run();
 ```
 
-O Callback ( ou Controller ) não permite chamada de método
+---
+
+O padrão Action não permite chamada de métodos específicos
 
 ```php
-$app->get('/login', 'App\Callback\Page\Login@index'); ❌
+$app->post('/login', 'App\Actions\Auth\LoginAction@authenticate'); ❌
 ```
 
 ```php
-$app->get('/login', 'App\Callback\Page\Login'); ✔️
+$app->post('/login', 'App\Actions\Auth\LoginAction'); ✔️
 ```
 
-Crie o método `handle`
+> Toda Action deve implementar o método `handle`
+
+As dependências declaradas no `__construct()` são resolvidas automaticamente pelo [Container](container.md)
 
 ```php
-class Login
+final readonly class LoginAction
 {
-    public function handle($req, $res): void
+    public function __construct(
+        private AuthService $authService,
+        private LoginService $loginService
+    ) {}
+
+    public function handle($request, $response): void
     {
         // ...
     }
@@ -49,25 +65,25 @@ routes.xml
     <route>
         <path>/</path>
         <method>GET</method>
-        <callback>App\Callback\Page\Home</callback>
+        <action>App\Actions\Page\ShowHomeAction</action>
     </route>
 
     <route>
         <path>/me</path>
         <method>GET</method>
-        <callback>App\Callback\Page\Me</callback>
+        <action>App\Actions\Profile\ShowProfileAction</action>
         <middlewares>
-            <middleware>App\Middleware\Token\Ensure</middleware>
+            <middleware>App\Middlewares\Token\EnsureMiddleware</middleware>
         </middlewares>
     </route>
 
     <route>
         <path>/dashboard</path>
         <method>GET</method>
-        <callback>App\Callback\Page\Dashboard</callback>
+        <action>App\Actions\Dashboard\ShowDashboardAction</action>
         <middlewares>
-            <middleware>App\Middleware\Token\Ensure</middleware>
-            <middleware>App\Middleware\Role::admin</middleware>
+            <middleware>App\Middlewares\Token\EnsureMiddleware</middleware>
+            <middleware>App\Middlewares\RoleMiddleware::admin</middleware>
         </middlewares>
     </route>
 </routes>
@@ -80,8 +96,8 @@ Middlewares devem ser informados no terceiro parâmetro da rota ( [Routes](#rout
 Para configurar um middleware **global**, utilize o método `use`
 
 ```php
-$app->use('App\Middleware\A');
-$app->use('App\Middleware\B');
+$app->use('App\Middlewares\A');
+$app->use('App\Middlewares\B');
 ```
 
 Veja abaixo alguns **exemplos** de middlewares
@@ -95,12 +111,12 @@ use Nano\Core\Security\{ CSRF, JWT };
 Middleware global que faz proteção contra CSRF e decodifica o payload do JWT
 
 ```php
-class Assert
+final readonly class AssertMiddleware
 {
-    public function handle($req, $res): void
+    public function handle($request, $response): void
     {
-        CSRF::assert($req, $res);
-        JWT::assert($req, $res, '/login');
+        CSRF::assert($request, $response);
+        JWT::assert($request, $response, '/login');
     }
 }
 ```
@@ -116,11 +132,11 @@ use Nano\Core\Security\JWT;
 Será chamado em rotas onde a autenticação é obrigatória
 
 ```php
-class Ensure
+final readonly class EnsureMiddleware
 {
-    public function handle($req, $res): void
+    public function handle($request, $response): void
     {
-        JWT::ensure($req, $res, '/login');
+        JWT::ensure($request, $response, '/login');
     }
 }
 ```
@@ -131,31 +147,33 @@ A criação dos middlewares Assert e Ensure, obriga que as **rotas de api**, ten
 
 Será chamado em rotas onde o usuário precisa ter níveis de acesso específicos
 
-> Coloque após o `Ensure`
+> Coloque após o `EnsureMiddleware`
 
 ```php
 $app->get(
     '/dashboard',
-    'App\Callback\Page\Dashboard',
-    ['App\Middleware\Token\Ensure', 'App\Middleware\Token\Role::admin']
+    'App\Actions\Dashboard\ShowDashboardAction',
+    [
+        'App\Middlewares\Token\EnsureMiddleware',
+        'App\Middlewares\Token\RoleMiddleware::admin'
+    ]
 );
 ```
 
 ```php
-class Role
+final readonly class RoleMiddleware
 {
-    public function handle($req, $res, $args): void
+    public function __construct(private UserService $service) {}
+
+    public function handle($request, $response, $args): void
     {
-        try {
-            $id = $req->query()->data->sub;
+        $id = $request->query()->data->sub;
 
-            $role = new Service()->getRoleByUserId($id);
+        $role = $this->service->find($id);
 
-            if (!in_array($role, $args)) {
-                $res->redirect('/me');
-            }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        // $args => ['admin']
+        if (!in_array($role, $args)) {
+            $response->redirect('/me');
         }
     }
 }
