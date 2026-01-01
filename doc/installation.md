@@ -22,39 +22,39 @@ composer require jonathansilva/nano
 <details>
     <summary>Nginx<summary>
 
-```nginx
-server {
-    listen 80;
-    server_name localhost;
-    root /var/www/projeto/public;
+    ```nginx
+    server {
+        listen 80;
+        server_name localhost;
+        root /var/www/projeto/public;
 
-    # Em 'root' coloque o caminho para o diretório /public do seu projeto
+        # Em 'root' coloque o caminho para o diretório /public do seu projeto
 
-    index index.html index.php;
+        index index.html index.php;
 
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location ~ \.php$ {
+            try_files $uri =404;
+
+            # Se estiver usando Docker, mantenha como 'php:9000' se 'php' for o nome do serviço
+            # Se for uma instalação local, use '127.0.0.1:9000' ou o caminho do socket
+
+            fastcgi_pass php:9000;
+            # fastcgi_pass 127.0.0.1:9000;
+            # fastcgi_pass unix:/var/run/php/php8.4-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            include fastcgi_params;
+        }
+
+        location ~ /\. {
+            deny all;
+        }
     }
-
-    location ~ \.php$ {
-        try_files $uri =404;
-
-        # Se estiver usando Docker, mantenha como 'php:9000' se 'php' for o nome do serviço
-        # Se for uma instalação local, use '127.0.0.1:9000' ou o caminho do socket
-
-        fastcgi_pass php:9000;
-        # fastcgi_pass 127.0.0.1:9000;
-        # fastcgi_pass unix:/var/run/php/php8.4-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\. {
-        deny all;
-    }
-}
-```
+    ```
 </details>
 
 Crie os arquivos `.env.example` e `.gitignore` na raiz do seu projeto
