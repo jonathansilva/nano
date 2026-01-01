@@ -17,7 +17,10 @@ Certifique-se de que as extensões abaixo, estejam habilitadas no *php.ini*
 composer require jonathansilva/nano
 ```
 
-*Nginx*
+**Configuração**
+
+<details>
+    <summary>Nginx<summary>
 
 ```nginx
 server {
@@ -52,8 +55,7 @@ server {
     }
 }
 ```
-
----
+</details>
 
 Crie os arquivos `.env.example` e `.gitignore` na raiz do seu projeto
 

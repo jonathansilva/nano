@@ -3,7 +3,7 @@
 namespace Nano\Core\Router;
 
 use Nano\Core\Router\{ Request, Response };
-use Nano\Core\Error;
+use Nano\Core\{ Container, Error };
 use Exception;
 use Closure;
 
@@ -18,13 +18,23 @@ class Router
 
     private string $path;
     private string $method;
-    private string $notFoundCallback;
+    private string $notFoundAction;
 
-    public function __construct()
+    public function __construct(private Container $di)
     {
         $this->request = new Request();
         $this->path = $this->request->path();
         $this->method = $this->getMethod();
+    }
+
+    public function bind(string $abstract, string $concrete): void
+    {
+        $this->di->bind($abstract, $concrete);
+    }
+
+    public function set(string $key, mixed $value): void
+    {
+        $this->di->set($key, $value);
     }
 
     private function getMethod(): string
@@ -38,14 +48,14 @@ class Router
         return $method;
     }
 
-    public function use(string $callback): void
+    public function use(string $action): void
     {
-        $this->globalsMiddlewares[] = $callback;
+        $this->globalsMiddlewares[] = $action;
     }
 
-    public function notFound(string $callback): void
+    public function notFound(string $action): void
     {
-        $this->notFoundCallback = $callback;
+        $this->notFoundAction = $action;
     }
 
     public function get(string $path, string|Closure $callback, array $middlewares = []): void
@@ -73,11 +83,11 @@ class Router
         $this->addRoute('DELETE', $path, $callback, $middlewares);
     }
 
-    private function addRoute(string $method, string $path, string|Closure $callback, array $middlewares = []): void
+    private function addRoute(string $method, string $path, string|Closure $action, array $middlewares = []): void
     {
         $newRoute = [
             'path' => $path,
-            'callback' => $callback
+            'action' => $action
         ];
 
         if (!empty($middlewares)) {
@@ -100,7 +110,7 @@ class Router
 	{
         $path = $route->path->__toString();
 	    $method = $route->method->__toString();
-	    $callback = $route->callback->__toString();
+	    $action = $route->action->__toString();
 
         $middlewares = [];
 
@@ -110,7 +120,7 @@ class Router
             }
         }
 
-        $this->addRoute($method, $path, $callback, $middlewares);
+        $this->addRoute($method, $path, $action, $middlewares);
 	}
 
     public function run(): mixed
@@ -128,11 +138,11 @@ class Router
                 $this->callMiddleware($route['middleware']);
             }
 
-            if (is_callable($route['callback'])) {
-                return $route['callback'](new $this->request($this->placeholdersValues), new Response);
+            if (is_callable($route['action'])) {
+                return $route['action'](new $this->request($this->placeholdersValues), new Response);
             }
 
-            return $this->handlerCallback($route['callback']);
+            return $this->handlerCallback($route['action']);
         }
 
         return $this->routeNotFound();
@@ -156,7 +166,7 @@ class Router
     {
         header('HTTP/1.1 404 Not Found');
 
-        if (!isset($this->notFoundCallback)) {
+        if (!isset($this->notFoundAction)) {
             if (!str_starts_with($this->request->path(), '/api/')) {
                 echo 'Page not found';
 
@@ -166,7 +176,7 @@ class Router
             Error::throwJsonException(404, 'Route not found');
         }
 
-        $this->handlerCallback($this->notFoundCallback);
+        $this->handlerCallback($this->notFoundAction);
     }
 
     private function extractPlaceholdersValues(string $path): void
@@ -212,13 +222,13 @@ class Router
     private function callClass(string $class): object
     {
         if (!class_exists($class)) {
-            throw new Exception("Class {$class} don't exists");
+            throw new Exception("Class '{$class}' don't exists");
         }
 
         if (!method_exists($class, 'handle')) {
-            throw new Exception("Method \"handle\" don't exists in {$class}");
+            throw new Exception("Method \"handle\" don't exists in '{$class}'");
         }
 
-        return new $class;
+        return $this->di->resolve($class);
     }
 }

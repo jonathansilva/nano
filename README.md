@@ -11,18 +11,16 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = Nano\Core\Router\Instance::create();
 
-$app->use('App\Middleware\Token\Assert');
+$app->use('App\Middlewares\Token\AssertMiddleware');
 
-$app->notFound('App\Callback\Page\NotFound');
+$app->get('/about', fn ($request, $response) => $response->view('about'));
 
-$app->get('/about', fn ($req, $res) => $res->view('about'));
-
-$app->get('/hello/{name}', function ($req, $res): void {
-    echo $req->params()->name;
+$app->get('/hello/{name}', function ($request, $response): void {
+    echo $request->params()->name;
 });
 
-$app->post('/api/register', function ($req, $res): void {
-    $res->json(201, array('message' => 'Cadastrado com sucesso'));
+$app->post('/api/register', function ($request, $response): void {
+    $response->json(201, ['message' => 'Cadastrado com sucesso']);
 });
 
 $app->run();
@@ -36,8 +34,9 @@ $app->run();
 * [Routes](doc/routes.md)
 * [Request](doc/request.md)
 * [Response](doc/response.md)
-* [Template engine](doc/template.md)
+* [Container](doc/container.md)
 * [Database](doc/database.md)
+* [Template engine](doc/template.md)
 * [Validator](doc/validator.md)
 * [CLI](doc/cli.md)
 * [CORS](doc/cors.md)
