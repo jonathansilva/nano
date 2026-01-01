@@ -7,9 +7,9 @@ use Nano\Core\View\Form;
 Retorna os erros e o token CSRF salvos na **sessão**
 
 ```php
-$form = Form::session($req);
+$form = Form::session($request);
 
-$res->view('register', [
+$response->view('register', [
     'csrf' => $form->csrf,
     'errors' => $form->errors
 ]);

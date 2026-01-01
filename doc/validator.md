@@ -2,12 +2,12 @@
 
 Regras: required, string, integer, float, bool, email, confirmed, min e max
 
-> Caso não houver erros na validação, um novo objeto será retornado em `$req->data()` com os dados [sanitizados](https://github.com/jonathansilva/nano/blob/master/src/Core/Security/Sanitize.php)
+> Caso não houver erros na validação, um novo objeto será retornado em `$request->data()` com os dados [sanitizados](https://github.com/jonathansilva/nano/blob/main/src/Core/Security/Sanitize.php)
 
 ```php
-class Create
+final readonly class BookCreateAction
 {
-    public function handle($req, $res): void
+    public function handle($request, $response): void
     {
         try {
             $rules = [
@@ -19,11 +19,11 @@ class Create
                 ]
             ];
 
-            $req->validate($rules);
+            $request->validate($rules);
 
-            $data = $req->data();
+            // ...
 
-            $res->json(201, ['message' => new Service()->register($data)]);
+            $response->json(201, ['message' => 'Cadastrado com sucesso']);
         } catch (Exception $e) {
             Error::throwJsonException(500, $e->getMessage());
         }
@@ -50,5 +50,5 @@ O uso do *confirmed* exige um novo input, onde o *name* precisa ter o sufixo `_c
 > Por padrão, as mensagens de erro estão em português. As opções aceitas são `pt-BR` e `en-US`
 
 ```php
-$req->validate($rules, 'en-US');
+$request->validate($rules, 'en-US');
 ```

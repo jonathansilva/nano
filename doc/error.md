@@ -13,7 +13,7 @@ use Nano\Core\Error;
 try {
     // ...
 } catch (Exception $e) {
-    $req->setSession('errors', Error::parse($e->getMessage()));
+    $request->setSession('errors', Error::parse($e->getMessage()));
 }
 ```
 
