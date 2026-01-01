@@ -13,7 +13,7 @@ try {
 
     $body = json_encode(array(...));
 
-    $data = $req->http()->post($url, $headers, $body);
+    $data = $request->http()->post($url, $headers, $body);
 
     if (!$data) {
         throw new Exception('Erro ao realizar requisição');
@@ -21,7 +21,7 @@ try {
 
     $info = json_decode($data);
 
-    $res->json($info->status, ['message' => $info->message]);
+    $response->json($info->status, ['message' => $info->message]);
 } catch (Exception $e) {
     Error::throwJsonException(500, $e->getMessage());
 }

@@ -39,14 +39,14 @@ Retorna os dados do payload, caso for válido
 JWT::decode($token);
 ```
 
-### `assert(object $req, object $res, ?string $redirectTo): void`
+### `assert(object $request, object $response, ?string $redirectTo): void`
 
 Verifica se existe um token válido no Cookie ( Web ) ou cabeçalho Authorization ( API )
 
 > Use como middleware global
 
 ```php
-JWT::assert($req, $res, '/login');
+JWT::assert($request, $response, '/login');
 ```
 
 1 ) Se o token existir mas for inválido:
@@ -55,16 +55,16 @@ JWT::assert($req, $res, '/login');
 
 [ API ] Retorna 'Invalid or expired token'
 
-Caso for válido, o payload será enviado para o próximo middleware ou controller, podendo ser recuperado usando `$req->query()` ( [Role Middleware](routes.md#role-middleware) )
+Caso for válido, o payload será enviado para o próximo middleware ou action, podendo ser recuperado usando `$request->query()` ( [Role Middleware](routes.md#role-middleware) )
 
-2 ) Se não existir, vai para o próximo middleware ou executa o controller
+2 ) Se não existir, vai para o próximo middleware ou executa o action
 
-### `ensure(object $req, object $res, ?string $redirectTo): void`
+### `ensure(object $request, object $response, ?string $redirectTo): void`
 
 > Use em rotas onde a autenticação é obrigatória ( [Ensure Middleware](routes.md#ensure-middleware) )
 
 ```php
-JWT::ensure($req, $res, '/login');
+JWT::ensure($request, $response, '/login');
 ```
 
 Se não encontrar o token:

@@ -36,8 +36,8 @@ Exemplo:
 *http://localhost:8080/hello/Jonathan*
 
 ```php
-$app->get('/hello/{name}', function ($req, $res): void {
-    echo $req->params()->name; // Jonathan
+$app->get('/hello/{name}', function ($request, $response): void {
+    echo $request->params()->name; // Jonathan
 });
 ```
 
@@ -50,7 +50,7 @@ Exemplo:
 *http://localhost:8080/t-shirts?filter=price*
 
 ```php
-$filter = $req->query()->filter ?? null; // price
+$filter = $request->query()->filter ?? null; // price
 ```
 
 ### `setQuery(string $key, string|object $value): ?object`

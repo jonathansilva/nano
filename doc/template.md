@@ -46,11 +46,11 @@ Salve os arquivos *.html* no diretório `views`
 > Home.php
 
 ```php
-class Home
+final readonly class ShowHomeAction
 {
-    public function handle($req, $res): void
+    public function handle($request, $response): void
     {
-        $res->view('home', ['message' => 'Welcome to Nano!']);
+        $response->view('home', ['message' => 'Welcome to Nano!']);
     }
 }
 ```

@@ -4,13 +4,13 @@ namespace Nano\Core\View;
 
 class Form
 {
-    public static function session(object $req): object
+    public static function session(object $request): object
     {
-        $csrf = $req->session('csrf');
-        $errors = $req->session('errors');
+        $csrf = $request->session('csrf');
+        $errors = $request->session('errors');
 
-        if ($req->hasSession('errors')) {
-            $req->removeSession('errors');
+        if ($request->hasSession('errors')) {
+            $request->removeSession('errors');
         }
 
         return (object) [

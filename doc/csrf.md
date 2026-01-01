@@ -4,14 +4,14 @@
 use Nano\Core\Security\CSRF;
 ```
 
-### `assert(object $req, object $res): void`
+### `assert(object $request, object $response): void`
 
 Gera um token a cada requisição ( GET ) e salva na sessão junto com o *path* da rota
 
 * Se o token da requisição ( formulário ou AJAX ) e da sessão forem diferentes, redireciona para a mesma página
 
 ```php
-CSRF::assert($req, $res);
+CSRF::assert($request, $response);
 ```
 
 > Coloque `session_start();` no index.php

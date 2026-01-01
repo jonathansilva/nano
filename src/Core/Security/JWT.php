@@ -7,9 +7,9 @@ use Exception;
 
 class JWT
 {
-    public static function assert(object $req, object $res, ?string $redirectTo): void
+    public static function assert(object $request, object $response, ?string $redirectTo): void
     {
-        $info = self::getData($req, $req->path());
+        $info = self::getData($request, $request->path());
 
         if ($info['data'] === false) {
             if ($info['type'] == 'api') {
@@ -17,26 +17,26 @@ class JWT
             }
 
             if ($info['type'] == 'web') {
-                $req->removeCookie('token');
-                $res->redirect($redirectTo);
+                $request->removeCookie('token');
+                $response->redirect($redirectTo);
             }
         }
 
-        $req->setQuery('data', $info['data']);
+        $request->setQuery('data', $info['data']);
     }
 
-    public static function ensure(object $req, object $res, ?string $redirectTo): void
+    public static function ensure(object $request, object $response, ?string $redirectTo): void
     {
-        if (str_starts_with($req->path(), '/api/')) {
-            if (!$req->authorizationBearer()) {
+        if (str_starts_with($request->path(), '/api/')) {
+            if (!$request->authorizationBearer()) {
                 Error::throwJsonException(401, 'Authorization token not found in request');
             }
 
             return;
         }
 
-        if (!$req->hasCookie('token')) {
-            $res->redirect($redirectTo);
+        if (!$request->hasCookie('token')) {
+            $response->redirect($redirectTo);
         }
     }
 
@@ -125,13 +125,13 @@ class JWT
         return $token ? self::decode($token) : '';
     }
 
-    private static function getData(object $req, string $path): array
+    private static function getData(object $request, string $path): array
     {
         if (str_starts_with($path, '/api/')) {
-            return ['type' => 'api', 'data' => self::decodeTokenPayload($req->authorizationBearer())];
+            return ['type' => 'api', 'data' => self::decodeTokenPayload($request->authorizationBearer())];
         }
 
-        return ['type' => 'web', 'data' => self::decodeTokenPayload($req->cookie('token'))];
+        return ['type' => 'web', 'data' => self::decodeTokenPayload($request->cookie('token'))];
     }
 
     private static function base64url_encode(string $data): string
