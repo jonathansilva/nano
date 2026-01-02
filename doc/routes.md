@@ -31,8 +31,6 @@ $app->post('/login', 'App\Actions\Auth\LoginAction'); ✔️
 
 > Toda Action deve implementar o método `handle`
 
-As dependências declaradas no `__construct()` são resolvidas automaticamente pelo [Container](container.md)
-
 ```php
 final readonly class LoginAction
 {
@@ -47,6 +45,8 @@ final readonly class LoginAction
     }
 }
 ```
+
+As dependências declaradas no `__construct()` são resolvidas automaticamente pelo [Container](container.md)
 
 ## Routes file
 
