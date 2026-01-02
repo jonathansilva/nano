@@ -171,10 +171,10 @@ final readonly class RoleMiddleware
     {
         $id = $request->query()->data->sub;
 
-        $role = $this->service->find($id);
+        $user = $this->service->find($id);
 
         // $args => ['admin']
-        if (!in_array($role, $args)) {
+        if (!in_array($user->role, $args)) {
             $response->redirect('/me');
         }
     }
