@@ -1,11 +1,13 @@
 # Database
 
-A classe `Database` gerencia a conexão com o banco de dados utilizando *PDO*. A configuração é feita via [variáveis de ambiente](installation.md)
+Gerenciamento de conexões com o banco de dados via **PDO**. A configuração é definida através de [variáveis de ambiente](installation.md)
 
-> A conexão é injetada automaticamente pelo [Container](container.md)
+**Injeção de dependência**
+
+Para manter o código testável e desacoplado, a conexão não deve ser instanciada manualmente. O Container resolve e injeta a instância de PDO automaticamente nos construtores, utilizando internamente o método `Database::instance()`
 
 ```php
-final readonly class UserRepository
+final readonly class UserRepository implements UserRepositoryInterface
 {
     public function __construct(private PDO $db) {}
 
@@ -17,3 +19,5 @@ final readonly class UserRepository
     }
 }
 ```
+
+Veja também: [Container](container.md)
