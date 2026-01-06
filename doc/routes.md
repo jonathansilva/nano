@@ -2,16 +2,25 @@
 
 Verbos: GET, POST, PUT, PATCH e DELETE
 
+> public/index.php
+
 ```php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 $app = Nano\Core\Router\Instance::create();
 
-// Rota não encontrada (opcional)
-$app->notFound('App\Actions\NotFoundAction');
+// Middleware global
+$app->use('App\Middlewares\Token\AssertMiddleware');
+
+// Rota não encontrada ( opcional )
+$app->notFound('App\Actions\Page\ShowNotFoundAction');
 
 $app->get(
     '/me', // Path
     'App\Actions\Profile\ShowProfileAction', // Action
-    ['App\Middlewares\Token\EnsureMiddleware'] // Middlewares (opcional)
+    ['App\Middlewares\Token\EnsureMiddleware'] // Middlewares ( opcional )
 );
 
 $app->run();
@@ -29,7 +38,10 @@ $app->post('/login', 'App\Actions\Auth\LoginAction@authenticate'); ❌
 $app->post('/login', 'App\Actions\Auth\LoginAction'); ✔️
 ```
 
-> Toda Action deve implementar o método `handle`
+Toda Action deve implementar o método `handle`
+
+<details>
+<summary>Exemplo</summary>
 
 ```php
 final readonly class LoginAction
@@ -45,8 +57,9 @@ final readonly class LoginAction
     }
 }
 ```
+</details>
 
-As dependências declaradas no `__construct()` são resolvidas automaticamente pelo [Container](container.md)
+**Obs:** As dependências declaradas no `__construct()` são resolvidas automaticamente pelo [Container](container.md)
 
 ## Routes file
 
@@ -57,7 +70,7 @@ $app->load(__DIR__ . '/../src/routes.xml');
 ```
 
 <details>
-<summary>routes.xml</summary>
+<summary>XML</summary>
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -95,7 +108,7 @@ $app->load(__DIR__ . '/../src/routes.xml');
 
 Middlewares devem ser informados no terceiro parâmetro da rota ( [Routes](#routes) )
 
-Para configurar um middleware **global**, utilize o método `use`
+Para configurar um middleware global, utilize o método `use`
 
 ```php
 $app->use('App\Middlewares\A');
@@ -106,44 +119,70 @@ Veja abaixo alguns **exemplos** de middlewares
 
 ## Assert Middleware
 
-```php
-use Nano\Core\Security\{ CSRF, JWT };
-```
+Middleware **global** que decodifica o payload do JWT
 
-Middleware global que faz proteção contra CSRF e decodifica o payload do JWT
+<details>
+<summary>Exemplo</summary>
 
 ```php
 final readonly class AssertMiddleware
 {
     public function handle($request, $response): void
     {
-        CSRF::assert($request, $response);
-        JWT::assert($request, $response, '/login');
+        $request->setQuery('data', null);
+
+        $token = $request->authorizationBearer() ?? $request->cookie('token');
+
+        if (!$token) {
+            return;
+        }
+
+        $payload = JWT::decode($token);
+
+        if (!$payload) {
+            if (str_starts_with($request->path(), '/api/')) {
+                Error::throwJsonException(401, 'Invalid or expired token');
+            }
+
+            $request->removeCookie('token');
+            $response->redirect('/login');
+        }
+
+        $request->setQuery('data', $payload);
     }
 }
 ```
+</details>
 
-Veja também: [CSRF](csrf.md) e [JWT](jwt.md)
+Veja também: [JWT](jwt.md)
 
 ## Ensure Middleware
 
-```php
-use Nano\Core\Security\JWT;
-```
-
 Será chamado em rotas onde a autenticação é obrigatória
+
+<details>
+<summary>Exemplo</summary>
 
 ```php
 final readonly class EnsureMiddleware
 {
     public function handle($request, $response): void
     {
-        JWT::ensure($request, $response, '/login');
+        if (str_starts_with($request->path(), '/api/')) {
+            if (!$request->authorizationBearer()) {
+                Error::throwJsonException(401, 'Authorization token not found in request');
+            }
+
+            return;
+        }
+
+        if (!$request->hasCookie('token')) {
+            $response->redirect('/login');
+        }
     }
 }
 ```
-
-A criação dos middlewares Assert e Ensure, obriga que as **rotas de api**, tenham o prefixo `/api/` para evitar redirecionamento
+</details>
 
 ## Role Middleware
 
@@ -161,6 +200,9 @@ $app->get(
     ]
 );
 ```
+
+<details>
+<summary>Exemplo</summary>
 
 ```php
 final readonly class RoleMiddleware
@@ -180,3 +222,8 @@ final readonly class RoleMiddleware
     }
 }
 ```
+</details>
+
+---
+
+Veja também: [CSRF](csrf.md)
