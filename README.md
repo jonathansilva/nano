@@ -2,25 +2,17 @@
 
 *Nano framework PHP* para desenvolvimento de API's e aplicações Web
 
-> public/index.php
-
 ```php
-<?php
-
-require_once __DIR__ . '/../vendor/autoload.php';
-
 $app = Nano\Core\Router\Instance::create();
 
-$app->use('App\Middlewares\Token\AssertMiddleware');
+$app->get('/', 'App\Actions\Page\ShowHomeAction');
 
-$app->get('/about', fn ($request, $response) => $response->view('about'));
-
-$app->get('/hello/{name}', function ($request, $response): void {
-    echo $request->params()->name;
+$app->get('/guest/{name}', function ($request, $response): void {
+    echo "Welcome, {$request->params()->name}";
 });
 
-$app->post('/api/register', function ($request, $response): void {
-    $response->json(201, ['message' => 'Cadastrado com sucesso']);
+$app->post('/api/products', function ($request, $response): void {
+    $response->json(201, ['message' => 'Product registered successfully']);
 });
 
 $app->run();
