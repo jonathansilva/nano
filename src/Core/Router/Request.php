@@ -91,9 +91,15 @@ class Request
         return (object) $_GET;
     }
 
-    public function setQuery(string $key, string|object $value): ?object
+    public function setQuery(string $key, string|object|null $value): ?object
     {
-        return (object) $_GET[$key] = $value;
+        if ($value === null) {
+            unset($_GET[$key]);
+
+            return null;
+        }
+
+        return (object) ($_GET[$key] = $value);
     }
 
     public function headers(): ?object
