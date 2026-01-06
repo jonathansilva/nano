@@ -81,7 +81,7 @@ TEMPLATE_ENGINE_CACHE=false
 
 Duplique o arquivo, renomeie para **.env** e altere os valores
 
-> Em ambiente de produção, configure as variáveis de ambiente diretamente no servidor ou plataforma de hospedagem
+**Obs:** Em ambiente de produção, configure as variáveis de ambiente diretamente no servidor ou plataforma de hospedagem
 
 Veja também: [Env](env.md)
 
