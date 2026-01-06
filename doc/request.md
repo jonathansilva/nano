@@ -53,14 +53,14 @@ Exemplo:
 $filter = $request->query()->filter ?? null; // price
 ```
 
-### `setQuery(string $key, string|object $value): ?object`
+### `setQuery(string $key, string|object|null $value): ?object`
 
 Define uma chave e valor na query string
 
 | Parâmetro | Tipo              | Descrição        |
 | :--------- | :---------------- | :----------------- |
 | `$key`   | `string`        | Nome para a chave  |
-| `$value` | `string\|object` | Valor para a chave |
+| `$value` | `string\|object\|null` | Valor para a chave |
 
 ### `headers(): ?object`
 
