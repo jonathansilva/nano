@@ -2,44 +2,11 @@
 
 namespace Nano\Core\Security;
 
-use Nano\Core\{ Env, Error };
+use Nano\Core\Env;
 use Exception;
 
 class JWT
 {
-    public static function assert(object $request, object $response, ?string $redirectTo): void
-    {
-        $info = self::getData($request, $request->path());
-
-        if ($info['data'] === false) {
-            if ($info['type'] == 'api') {
-                Error::throwJsonException(401, 'Invalid or expired token');
-            }
-
-            if ($info['type'] == 'web') {
-                $request->removeCookie('token');
-                $response->redirect($redirectTo);
-            }
-        }
-
-        $request->setQuery('data', $info['data']);
-    }
-
-    public static function ensure(object $request, object $response, ?string $redirectTo): void
-    {
-        if (str_starts_with($request->path(), '/api/')) {
-            if (!$request->authorizationBearer()) {
-                Error::throwJsonException(401, 'Authorization token not found in request');
-            }
-
-            return;
-        }
-
-        if (!$request->hasCookie('token')) {
-            $response->redirect($redirectTo);
-        }
-    }
-
     public static function encode(array $data): object
     {
         // Header
@@ -118,20 +85,6 @@ class JWT
         $key = (strlen($envKey) > 0) ? $envKey : null;
 
         return $key ?? throw new Exception('[JWT] Erro de autenticação no servidor');
-    }
-
-    private static function decodeTokenPayload(?string $token): mixed
-    {
-        return $token ? self::decode($token) : '';
-    }
-
-    private static function getData(object $request, string $path): array
-    {
-        if (str_starts_with($path, '/api/')) {
-            return ['type' => 'api', 'data' => self::decodeTokenPayload($request->authorizationBearer())];
-        }
-
-        return ['type' => 'web', 'data' => self::decodeTokenPayload($request->cookie('token'))];
     }
 
     private static function base64url_encode(string $data): string
