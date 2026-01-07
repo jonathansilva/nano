@@ -1,24 +1,55 @@
 # CSRF
 
-```php
-use Nano\Core\Security\CSRF;
-```
+Gera um token a cada requisição GET e salva na sessão junto com o *path* da rota
 
-### `assert(object $request, object $response): void`
+Se o token da requisição* e da sessão forem diferentes, redireciona para a mesma página
 
-Gera um token a cada requisição ( GET ) e salva na sessão junto com o *path* da rota
-
-* Se o token da requisição ( formulário ou AJAX ) e da sessão forem diferentes, redireciona para a mesma página
+<details>
+<summary>Exemplo</summary>
 
 ```php
-CSRF::assert($request, $response);
+final readonly class CSRF
+{
+    public function handle($request, $response): void
+	{
+        if ($request->method() == 'GET') {
+            $request->setSession('path', $request->path());
+            $request->setSession('csrf', bin2hex(random_bytes(32)));
+
+            return;
+        }
+
+        $token = trim($request->data('csrf') ?? '');
+
+        if (empty($token)) {
+            if (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+                $token = trim($_SERVER['HTTP_X_CSRF_TOKEN']);
+            }
+        }
+
+        if (empty($token)) {
+            error_log('[CSRF] The token was not found or empty in the form or header');
+
+            $response->redirect($request->session('path'));
+        }
+
+        if (!hash_equals($request->session('csrf'), $token)) {
+            error_log('[CSRF] Invalid token in the form or header');
+
+            $response->redirect($request->session('path'));
+        }
+    }
+}
 ```
 
-> Coloque `session_start();` no index.php
+**Obs:** Por usar `$_SESSION` internamente na classe `Request`, é necessário que coloque `session_start();` no index.php
+</details>
+
+*Exceto em requisições GET
+
+> Use como middleware
 
 **Formulário**
-
-Crie um campo *hidden* chamado **csrf**
 
 ```html
 <input type="hidden" name="csrf" value="{{ $csrf }}">
@@ -26,13 +57,14 @@ Crie um campo *hidden* chamado **csrf**
 
 **AJAX ( axios / fetch )**
 
-> Por convenção, o token é exibido em uma *meta* tag chamada **csrf-token**
+Por convenção, o token é exibido em uma *meta tag* chamada **csrf-token** e enviado pelo cabeçalho `X-CSRF-Token`
+
+<details>
+<summary>Exemplo</summary>
 
 ```html
 <meta name="csrf-token" content="{{ $csrf }}">
 ```
-
-O token será enviado pelo cabeçalho `X-CSRF-Token`
 
 ```javascript
 const form = document.querySelector('form');
@@ -57,5 +89,6 @@ button.addEventListener('click', async event => {
     }
 });
 ```
+</details>
 
 Veja também: [Form](form.md)
