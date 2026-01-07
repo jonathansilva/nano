@@ -57,9 +57,9 @@ final readonly class LoginAction
     }
 }
 ```
-</details>
 
 **Obs:** As dependências declaradas no `__construct()` são resolvidas automaticamente pelo [Container](container.md)
+</details>
 
 ## Routes file
 
