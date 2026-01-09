@@ -2,7 +2,7 @@
 
 Gera um token a cada requisição GET e salva na sessão junto com o *path* da rota
 
-Se o token da requisição* e da sessão forem diferentes, redireciona para a mesma página
+Se o token da requisição POST, PUT, PATCH ou DELETE for diferente da sessão, redireciona para a mesma página
 
 <details>
 <summary>Exemplo</summary>
@@ -43,9 +43,8 @@ final readonly class CSRF
 ```
 
 **Obs:** Por usar `$_SESSION` internamente na classe `Request`, é necessário que coloque `session_start();` no index.php
-</details>
 
-*Exceto em requisições GET
+</details>
 
 > Use como middleware
 
@@ -54,6 +53,23 @@ final readonly class CSRF
 ```html
 <input type="hidden" name="csrf" value="{{ $csrf }}">
 ```
+
+<details>
+<summary>Exemplo</summary>
+
+```php
+final readonly class ShowLoginAction
+{
+    public function handle($request, $response): void
+    {
+        $response->view('login', [
+            'csrf' => $request->session('csrf')
+        ]);
+    }
+}
+```
+
+</details>
 
 **AJAX ( axios / fetch )**
 
@@ -89,6 +105,5 @@ button.addEventListener('click', async event => {
     }
 });
 ```
-</details>
 
-Veja também: [Form](form.md)
+</details>
