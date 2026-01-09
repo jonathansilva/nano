@@ -61,11 +61,33 @@ final readonly class ShowHomeAction
 
 Exibindo os erros de validação ( [Validator](validator.md) )
 
+<details>
+<summary>Exemplo</summary>
+
+```php
+final readonly class ShowLoginAction
+{
+    public function handle($request, $response): void
+    {
+        $response->view('login', [
+            'errors' => $request->session('errors')
+        ]);
+
+        if ($request->hasSession('errors')) {
+            $request->removeSession('errors');
+        }
+    }
+}
+```
+
 ```html
 {% foreach ($errors as $value): %}
     <div>{{ $value }}</div>
 {% endforeach; %}
 ```
+
+Veja também: [CSRF](csrf.md)
+</details>
 
 Para saber mais sobre este template engine, [clique aqui](https://codeshack.io/lightweight-template-engine-php)
 
