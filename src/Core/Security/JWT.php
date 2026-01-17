@@ -19,14 +19,21 @@ class JWT
         $payloadAccess = array_merge($data, ['exp' => $exp['access']]);
         $payloadAccessEncoded = self::base64url_encode(json_encode($payloadAccess));
 
+        $payloadRefresh = ['exp' => $exp['refresh']];
+        $payloadRefreshEncoded = self::base64url_encode(json_encode($payloadRefresh));
+
         // Signature
         $key = self::getKey();
 
         $signatureAccess = hash_hmac('SHA256', "{$headersEncoded}.{$payloadAccessEncoded}", $key, true);
         $signatureAccessEncoded = self::base64url_encode($signatureAccess);
 
+        $signatureRefresh = hash_hmac('SHA256', "{$headersEncoded}.{$payloadRefreshEncoded}", $key, true);
+        $signatureRefreshEncoded = self::base64url_encode($signatureRefresh);
+
         return (object) [
-            'access' => "{$headersEncoded}.{$payloadAccessEncoded}.{$signatureAccessEncoded}"
+            'access' => "{$headersEncoded}.{$payloadAccessEncoded}.{$signatureAccessEncoded}",
+            'refresh' => "{$headersEncoded}.{$payloadRefreshEncoded}.{$signatureRefreshEncoded}"
         ];
     }
 
@@ -64,9 +71,13 @@ class JWT
     private static function getExpTime(): array
     {
         $envAccessType = strtolower(Env::fetch('JWT_ACCESS_EXP_TYPE'));
+        $envRefreshType = strtolower(Env::fetch('JWT_REFRESH_EXP_TYPE'));
+
         $envAccessTime = (int) Env::fetch('JWT_ACCESS_EXP_TIME');
+        $envRefreshTime = (int) Env::fetch('JWT_REFRESH_EXP_TIME');
 
         $accessTime = ($envAccessTime > 0) ? $envAccessTime : null;
+        $refreshTime = ($envRefreshTime > 0) ? $envRefreshTime : null;
 
         return [
             'access' => match ($envAccessType) {
@@ -74,6 +85,11 @@ class JWT
                 'hours' => time() + 3600 * ($accessTime ?? 1),
                 'days' => time() + (3600 * 24) * ($accessTime ?? 1),
                 default => time() + 3600 * ($accessTime ?? 1) // hours
+            },
+            'refresh' => match ($envRefreshType) {
+                'hours' => time() + 3600 * ($refreshTime ?? 8),
+                'days' => time() + (3600 * 24) * ($refreshTime ?? 7),
+                default => time() + (3600 * 24) * ($refreshTime ?? 7) // days
             }
         ];
     }

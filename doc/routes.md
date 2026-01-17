@@ -129,6 +129,10 @@ final readonly class AssertMiddleware
 {
     public function handle($request, $response): void
     {
+        if (str_ends_with($request->path(), '/refresh-token')) {
+            return;
+        }
+
         $request->setQuery('data', null);
 
         $token = $request->authorizationBearer() ?? $request->cookie('token');
