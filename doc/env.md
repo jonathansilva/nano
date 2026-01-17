@@ -12,8 +12,6 @@ A classe `Env` segue a seguinte ordem ao procurar pela chave
 
 O processo de busca é interrompido no momento em que a chave é encontrada
 
-> Deve ser chamada pelo método estático `fetch`
-
 ```php
-Env::fetch('JWT_KEY');
+$value = Env::fetch('JWT_KEY');
 ```
