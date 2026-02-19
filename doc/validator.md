@@ -5,7 +5,7 @@ Regras: required, string, integer, float, bool, email, confirmed, min e max
 > Caso não houver erros na validação, um novo objeto será retornado em `$request->data()` com os dados [sanitizados](https://github.com/jonathansilva/nano/blob/main/src/Core/Security/Sanitize.php)
 
 ```php
-final readonly class BookCreateAction
+final readonly class StoreBookAction
 {
     public function handle($request, $response): void
     {

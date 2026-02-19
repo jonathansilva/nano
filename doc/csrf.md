@@ -58,7 +58,7 @@ final readonly class CSRF
 <summary>Exemplo</summary>
 
 ```php
-final readonly class ShowLoginAction
+final readonly class ShowLoginFormAction
 {
     public function handle($request, $response): void
     {
