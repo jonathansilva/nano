@@ -65,7 +65,7 @@ Exibindo os erros de validação ( [Validator](validator.md) )
 <summary>Exemplo</summary>
 
 ```php
-final readonly class ShowLoginAction
+final readonly class ShowLoginFormAction
 {
     public function handle($request, $response): void
     {
