@@ -7,7 +7,7 @@ A classe `Container` utiliza **Reflection** para analisar o `__construct()` das 
 Por padrão, as instâncias são tratadas como *Singletons*, sendo reutilizadas durante toda a requisição
 
 ```php
-final readonly class UserCreateAction
+final readonly class StoreUserAction
 {
     public function __construct(
         private AuthService $authService,
@@ -48,15 +48,40 @@ $app->bind(
 
 **Testes unitários e Mocks**
 
-O método `set()` permite forçar uma instância específica dentro do Container. Isso é ideal para substituir serviços reais por *mocks* durante os testes
+O método `set()` permite forçar uma instância específica dentro do Container. Ideal para substituir serviços reais por *mocks* durante os testes
+
+<details>
+<summary>Exemplo</summary>
 
 ```php
-$container = new Nano\Core\Container();
+final class LoginActionTest extends TestCase
+{
+    // ...
 
-// Injetando mocks
-$container->set(AuthService::class, $authMock);
-$container->set(UserService::class, $serviceMock);
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-// Ao resolver a Action, o Container utilizará os mocks acima
-$action = $container->resolve(UserCreateAction::class);
+        $this->container = new Nano\Core\Container();
+
+        $this->authServiceMock = $this->createMock(AuthService::class);
+        $this->loginServiceMock = $this->createMock(LoginService::class);
+        $this->mapperMock = $this->createMock(LoginMapper::class);
+
+        $this->requestMock = $this->getMockBuilder(stdClass::class)
+            ->addMethods(['validate', 'data', 'setCookie', 'setSession'])
+            ->getMock();
+
+        $this->responseMock = $this->getMockBuilder(stdClass::class)
+            ->addMethods(['redirect'])
+            ->getMock();
+
+        $this->container->set(AuthService::class, $this->authServiceMock);
+        $this->container->set(LoginService::class, $this->loginServiceMock);
+        $this->container->set(LoginMapper::class, $this->mapperMock);
+    }
+
+    // ...
+}
 ```
+</details>
