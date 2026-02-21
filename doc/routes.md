@@ -26,6 +26,20 @@ $app->get(
 $app->run();
 ```
 
+Além de passar o `namespace` como uma string literal, o Nano suporta a resolução de nome de classe*
+
+```php
+// String literal
+$app->get('/', 'App\Actions\Page\ShowHomeAction');
+
+// Resolução de nome de classe
+use App\Actions\Page\ShowHomeAction;
+
+$app->get('/', ShowHomeAction::class);
+```
+
+*Não há suporte no arquivo de rotas ( [Routes file](#routes-file) )
+
 ---
 
 O padrão Action não permite chamada de métodos específicos
