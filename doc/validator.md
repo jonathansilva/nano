@@ -72,7 +72,7 @@ Substitui os nomes técnicos das chaves ( exemplo: fullname ) por nomes amigáve
 $rules = [
     'fullname' => 'required|string',
     'email' => 'required|email',
-    'password' => 'required|string'
+    'password' => 'required|string|min:8|confirmed'
 ];
 
 $customAttributes = [
