@@ -1,9 +1,5 @@
 # Template engine
 
-Desenvolvido por David Adams ( https://codeshack.io )
-
-> Foram feitas pequenas alterações no código
-
 ```php
 final readonly class ShowHomeAction
 {
@@ -89,6 +85,10 @@ final readonly class ShowLoginFormAction
 Veja também: [CSRF](csrf.md)
 </details>
 
+Desenvolvido por David Adams ( https://codeshack.io )
+
 Para saber mais sobre este template engine, [clique aqui](https://codeshack.io/lightweight-template-engine-php)
+
+---
 
 Veja também: [CLI](cli.md)
