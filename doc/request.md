@@ -152,7 +152,7 @@ Remove a chave e seu valor da sessão
 | :--------- | :--------- | :------------ |
 | `$key`   | `string` | Nome da chave |
 
-### `validate(array $rules, ?string $lang = 'pt-BR'): void`
+### `validate(array $rules, ?array $attrs = [], ?string $lang = 'pt-BR'): void`
 
 Valida os dados recebidos na requisição
 
@@ -162,6 +162,7 @@ Valida os dados recebidos na requisição
 | Parâmetro | Tipo        | Descrição                    |
 | :--------- | :---------- | :----------------------------- |
 | `$rules` | `array`   | Dados da requisição          |
+| `$attrs`  | `?array` | Atributos customizados ( opcional ) |
 | `$lang`  | `?string` | Código do idioma ( opcional ) |
 
 Mais detalhes em [Validator](validator.md)

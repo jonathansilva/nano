@@ -7,14 +7,14 @@ use Exception;
 class Validator
 {
     private static array $errors = [];
-
+    private static array $attrs = [];
     private static object $data;
-
     private static string $lang;
 
-    public static function schema(object $data, array $rules, string $lang): false|array
+    public static function schema(object $data, array $rules, array $attrs, string $lang): false|array
     {
         self::$data = $data;
+        self::$attrs = $attrs;
         self::$lang = $lang;
 
         self::recursive(self::$data, $rules);
@@ -23,17 +23,6 @@ class Validator
             return false;
         }
 
-        /* Separa os erros em grupos ( ["email"] => [...], ["password"] => [...] )
-         * e move a mensagem de "tipo desconhecido" ( caso existir ), para o final de cada grupo
-         *
-         * [
-         *     "O campo email é obrigatório",
-         *     "O campo email deve ser do tipo e-mail",
-         *     "O campo password é obrigatório",
-         *     "O campo password deve ter no mínimo 8 caracteres",
-         *     "O campo password tem um tipo desconhecido => strings"
-         * ]
-         */
         return self::orderedArray();
     }
 
@@ -176,9 +165,22 @@ class Validator
             ][$rule] ?? "has an unknown type => {$rule}"
         ][self::$lang];
 
+        $field = self::$attrs[$field] ?? $field;
+
         self::$errors[] = (self::$lang == 'pt-BR') ? "O campo '{$field}' {$message}" : "The '{$field}' field {$message}";
     }
 
+    /* Separa os erros em grupos ( [E-mail] => [...], [Senha] => [...] )
+     * e move a mensagem de "tipo desconhecido" ( caso existir ), para o final de cada grupo
+     *
+     * [
+     *     "O campo E-mail é obrigatório",
+     *     "O campo E-mail deve ser do tipo e-mail",
+     *     "O campo Senha é obrigatório",
+     *     "O campo Senha deve ter no mínimo 8 caracteres",
+     *     "O campo Senha tem um tipo desconhecido => strings"
+     * ]
+     */
     private static function orderedArray(): array
     {
         $errorGroups = [];
@@ -187,7 +189,7 @@ class Validator
         $unknownType = (self::$lang == 'pt-BR') ? 'desconhecido' : 'unknown';
 
         foreach (array_unique(self::$errors) as $error) {
-            preg_match('/\'([\w]+)\'/', $error, $matches);
+            preg_match('/\'([\w\s-]+)\'/', $error, $matches);
 
             $field = $matches[1];
 

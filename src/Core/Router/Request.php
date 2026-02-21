@@ -205,7 +205,7 @@ class Request
         unset($_SESSION[$key]);
     }
 
-    public function validate(array $rules, ?string $lang = 'pt-BR'): void
+    public function validate(array $rules, ?array $attrs = [], ?string $lang = 'pt-BR'): void
     {
         $data = $this->data();
 
@@ -217,7 +217,7 @@ class Request
             throw new Exception("Only 'pt-BR' and 'en-US' are allowed on 'validate' method");
         }
 
-        $errors = Validator::schema($data, $rules, $lang);
+        $errors = Validator::schema($data, $rules, $attrs, $lang);
 
         if ($errors) {
             throw new Exception(json_encode($errors));
