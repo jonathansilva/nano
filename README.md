@@ -7,12 +7,12 @@ $app = Nano\Core\Router\Instance::create();
 
 $app->get('/', 'App\Actions\Page\ShowHomeAction');
 
-$app->get('/guest/{name}', function ($request, $response): void {
-    echo "Welcome, {$request->params()->name}";
+$app->get('/{name:[a-zA-Z][a-zA-Z]+}', function ($request, $response): void {
+    echo "Olá, {$request->params()->name}";
 });
 
-$app->post('/api/products', function ($request, $response): void {
-    $response->json(201, ['message' => 'Product registered successfully']);
+$app->post('/api/users', function ($request, $response): void {
+    $response->json(201, ['message' => 'Cadastrado com sucesso']);
 });
 
 $app->run();

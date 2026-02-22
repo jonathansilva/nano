@@ -26,6 +26,21 @@ $app->get(
 $app->run();
 ```
 
+**Parâmetros e Restrições ( Regex )**
+
+Permite aplicar restrições *inline* para validar o formato do parâmetro
+
+**Obs:** Parâmetros devem ficar entre chaves
+
+| Rota                                                          | Descrição                                                                                   |
+| :------------------------------------------------------------ | :-------------------------------------------------------------------------------------------- |
+| `GET /product/{slug}`                                       | Sem restrições ( não recomendado )                                                         |
+| `GET /product/{slug:[a-z0-9](?:(?!--)[a-z0-9-])*[a-z0-9]}`  | Letras minúsculas, números e `-`. Pode iniciar e terminar com letra ou número |
+| `DELETE /product/{id:\d+}`                                  | Apenas números                                                                               |
+| `GET /profile/{username:[a-z](?:(?!__)[a-z0-9_])*[a-z0-9]}` | Letras minúsculas, números e `_`. Deve iniciar com letra                 |
+
+---
+
 Além de passar o `namespace` como uma string literal, o Nano suporta a resolução de nome de classe*
 
 ```php
