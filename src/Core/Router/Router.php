@@ -153,7 +153,7 @@ class Router
         $routes = $this->routes[$this->method] ?? [];
 
         $route = array_filter($routes, function ($checkRoute): bool|int {
-            // Procura por {nome} ou {nome:regra}
+            // Procura por {parâmetro} ou {parâmetro:regra}
             $pattern = preg_replace_callback('/\{([a-zA-Z0-9_-]+)(?::([^\}]+))?\}/', function ($matches): string {
                 return isset($matches[2]) ? "($matches[2])" : '([^/]+)';
             }, $checkRoute['path']);
@@ -185,11 +185,11 @@ class Router
     {
         //var_dump($path, $this->path); // "/hello/{name}" "/hello/jonathan"
 
-        $pattern = preg_replace_callback('/\{([a-zA-Z0-9_-]+)(?::([^\}]+))?\}/', function($matches): string {
-            $tag = $matches[1];
+        $pattern = preg_replace_callback('/\{([a-zA-Z0-9_-]+)(?::([^\}]+))?\}/', function ($matches): string {
+            $parameter = $matches[1];
             $rule = $matches[2] ?? '[^/]+';
 
-            return "(?<{$tag}>{$rule})";
+            return "(?<{$parameter}>{$rule})";
         }, $path); // "/hello/(?[^/]+)"
 
         if (preg_match("#^{$pattern}/?$#", $this->path, $matches)) {
