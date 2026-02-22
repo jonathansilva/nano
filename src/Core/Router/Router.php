@@ -153,10 +153,12 @@ class Router
         $routes = $this->routes[$this->method] ?? [];
 
         $route = array_filter($routes, function ($checkRoute): bool|int {
-            $pattern = preg_replace('#\{.*?\}#', '([^/]+)', $checkRoute['path']);
-            $pattern = '#^' . $pattern . '/?$#';
+            // Procura por {nome} ou {nome:regra}
+            $pattern = preg_replace_callback('/\{([a-zA-Z0-9_-]+)(?::([^\}]+))?\}/', function ($matches): string {
+                return isset($matches[2]) ? "($matches[2])" : '([^/]+)';
+            }, $checkRoute['path']);
 
-            return preg_match($pattern, $this->path);
+            return preg_match("#^{$pattern}/?$#", $this->path);
         });
 
         return $route ? reset($route) : null;
@@ -183,20 +185,23 @@ class Router
     {
         //var_dump($path, $this->path); // "/hello/{name}" "/hello/jonathan"
 
-        $pattern = preg_replace('/\{([a-zA-Z0-9_-]+)\}/', '(?<$1>[^/]+)', $path); // "/hello/(?[^/]+)"
+        $pattern = preg_replace_callback('/\{([a-zA-Z0-9_-]+)(?::([^\}]+))?\}/', function($matches): string {
+            $tag = $matches[1];
+            $rule = $matches[2] ?? '[^/]+';
 
-        $pattern = '#^' . $pattern . '/?$#'; // "#^/hello/(?[^/]+)/?$#"
+            return "(?<{$tag}>{$rule})";
+        }, $path); // "/hello/(?[^/]+)"
 
-        preg_match($pattern, $this->path, $matches);
+        if (preg_match("#^{$pattern}/?$#", $this->path, $matches)) {
+            //var_dump($matches); // [ 0 => "/hello/jonathan", "name" => "jonathan", 1 => "jonathan" ]
 
-        //var_dump($matches); // [ 0 => "/hello/jonathan", "name" => "jonathan", 1 => "jonathan" ]
+            $keys = array_keys($matches); // [ 0 => 0, 1 => "name", 2 => 1 ]
+            $filter = array_filter($keys, 'is_string'); // [ 1 => "name" ]
+            $flip = array_flip($filter); // [ "name" => 1 ]
+            $intersect_key = array_intersect_key($matches, $flip); // [ "name" => "jonathan" ]
 
-        $keys = array_keys($matches); // [ 0 => 0, 1 => "name", 2 => 1 ]
-        $filter = array_filter($keys, 'is_string'); // [ 1 => "name" ]
-        $flip = array_flip($filter); // [ "name" => 1 ]
-        $intersect_key = array_intersect_key($matches, $flip); // [ "name" => "jonathan" ]
-
-        $this->placeholdersValues = $intersect_key;
+            $this->placeholdersValues = $intersect_key;
+        }
     }
 
     private function handlerCallback(string $class): void
