@@ -5,9 +5,7 @@
 ```php
 $app = Nano\Core\Router\Instance::create();
 
-$app->get('/', 'App\Actions\Page\ShowHomeAction');
-
-$app->get('/{name:[a-zA-Z][a-zA-Z]+}', function ($request, $response): void {
+$app->get('/{name:[a-zA-Z][a-z]+}', function ($request, $response): void {
     echo "Olá, {$request->params()->name}";
 });
 
