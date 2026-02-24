@@ -39,25 +39,9 @@ Permite aplicar restrições *inline* para validar o formato do parâmetro
 | `DELETE /product/{id:\d+}`                                  | Apenas números                                                                               |
 | `GET /profile/{username:[a-z](?:(?!__)[a-z0-9_])*[a-z0-9]}` | Letras minúsculas, números e `_`. Deve iniciar com letra                 |
 
----
+**Actions ( ADR )**
 
-Além de passar o `namespace` como uma string literal, o Nano suporta a resolução de nome de classe*
-
-```php
-// String literal
-$app->get('/', 'App\Actions\Page\ShowHomeAction');
-
-// Resolução de nome de classe
-use App\Actions\Page\ShowHomeAction;
-
-$app->get('/', ShowHomeAction::class);
-```
-
-*Não há suporte no arquivo de rotas ( [Routes file](#routes-file) )
-
----
-
-O padrão Action não permite chamada de métodos específicos
+Diferente do padrão Controller ( MVC ), o **Action** não permite chamada de métodos específicos. Cada classe Action é responsável por uma única responsabilidade
 
 ```php
 $app->post('/login', 'App\Actions\Auth\LoginAction@authenticate'); ❌
@@ -67,7 +51,7 @@ $app->post('/login', 'App\Actions\Auth\LoginAction@authenticate'); ❌
 $app->post('/login', 'App\Actions\Auth\LoginAction'); ✔️
 ```
 
-Toda Action deve implementar o método `handle`
+Toda Action deve, obrigatoriamente, implementar o método `handle`
 
 <details>
 <summary>Exemplo</summary>
@@ -89,6 +73,22 @@ final readonly class LoginAction
 
 **Obs:** As dependências declaradas no `__construct()` são resolvidas automaticamente pelo [Container](container.md)
 </details>
+
+---
+
+Além de passar o `namespace` como uma string literal, o Nano suporta a resolução de nome de classe*
+
+```php
+// String literal
+$app->get('/', 'App\Actions\Page\ShowHomeAction');
+
+// Resolução de nome de classe
+use App\Actions\Page\ShowHomeAction;
+
+$app->get('/', ShowHomeAction::class);
+```
+
+*Não há suporte no arquivo de rotas ( [Routes file](#routes-file) )
 
 ## Routes file
 
