@@ -41,7 +41,7 @@ Permite aplicar restrições *inline* para validar o formato do parâmetro
 
 **Actions ( ADR )**
 
-Diferente do padrão Controller ( MVC ), o **Action** não permite chamada de métodos específicos. Cada classe Action é responsável por uma única responsabilidade
+Diferente do padrão Controller ( MVC ), o **Action** não permite chamada de métodos específicos. Cada classe Action é responsável por uma única operação
 
 ```php
 $app->post('/login', 'App\Actions\Auth\LoginAction@authenticate'); ❌
@@ -88,7 +88,7 @@ use App\Actions\Page\ShowHomeAction;
 $app->get('/', ShowHomeAction::class);
 ```
 
-*Não há suporte no arquivo de rotas ( [Routes file](#routes-file) )
+*Não há suporte no arquivo de rotas
 
 ## Routes file
 
