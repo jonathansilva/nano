@@ -2,14 +2,14 @@
 
 namespace Nano\Core\Router;
 
-use Nano\Core\Router\{ Request, Response };
 use Nano\Core\{ Container, Error };
-use Exception;
+use Nano\Core\Router\{ RequestInterface, ResponseInterface };
 use Closure;
+use Exception;
 
-class Router
+final class Router
 {
-    private Request $request;
+    private RequestInterface $request;
 
     private array $allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
     private array $globalsMiddlewares = [];
@@ -22,7 +22,7 @@ class Router
 
     public function __construct(private Container $di)
     {
-        $this->request = new Request();
+        $this->request = $this->di->resolve(RequestInterface::class);
         $this->path = $this->request->path();
         $this->method = $this->getMethod();
     }
@@ -39,7 +39,7 @@ class Router
 
     private function getMethod(): string
     {
-        $method = $this->request->method();
+        $method = $this->request->getMethod();
 
         if (!in_array($method, $this->allowedMethods)) {
             Error::throwJsonException(405, 'Method not allowed');
@@ -130,6 +130,12 @@ class Router
         if ($route) {
             $this->extractPlaceholdersValues($route['path']);
 
+            [$request, $response] = $this->resolveHttp();
+
+            if (!empty($this->placeholdersValues)) {
+                $request->setParams($this->placeholdersValues);
+            }
+
             if (!empty($this->globalsMiddlewares)) {
                 $this->callMiddleware($this->globalsMiddlewares);
             }
@@ -139,7 +145,7 @@ class Router
             }
 
             if (is_callable($route['action'])) {
-                return $route['action'](new $this->request($this->placeholdersValues), new Response);
+                return $route['action']($request, $response);
             }
 
             return $this->handlerCallback($route['action']);
@@ -206,21 +212,25 @@ class Router
 
     private function handlerCallback(string $class): void
     {
-        $this->callClass($class)->handle(new $this->request($this->placeholdersValues), new Response);
+        [$request, $response] = $this->resolveHttp();
+
+        $this->callClass($class)->handle($request, $response);
     }
 
     private function callMiddleware(array $middlewares): void
     {
+        [$request, $response] = $this->resolveHttp();
+
         foreach ($middlewares as $middleware) {
             $matchParsed = explode('::', $middleware);
 
-            $middleware = $matchParsed[0];
+            $class = $matchParsed[0];
 
             unset($matchParsed[0]);
 
             $args = array_values($matchParsed);
 
-            $this->callClass($middleware)->handle(new $this->request($this->placeholdersValues), new Response, $args);
+            $this->callClass($class)->handle($request, $response, $args);
         }
     }
 
@@ -235,5 +245,16 @@ class Router
         }
 
         return $this->di->resolve($class);
+    }
+
+    /**
+     * @return array{InternalRequestInterface, ResponseInterface}
+     */
+    private function resolveHttp(): array
+    {
+        return [
+            $this->di->resolve(RequestInterface::class),
+            $this->di->resolve(ResponseInterface::class)
+        ];
     }
 }

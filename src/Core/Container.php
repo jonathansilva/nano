@@ -9,7 +9,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
 
-class Container
+final class Container
 {
     private array $bindings = [];
     private array $instances = [];

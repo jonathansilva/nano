@@ -5,7 +5,7 @@ namespace Nano\Core;
 use CurlHandle;
 use Exception;
 
-class Curl
+final class Curl
 {
     private CurlHandle $curl;
 

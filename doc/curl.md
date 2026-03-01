@@ -8,7 +8,7 @@ try {
 
     $headers = [
         'Content-Type: application/json',
-        'Authorization: Bearer TOKEN'
+        'Authorization: Bearer <TOKEN>'
     ];
 
     $body = json_encode(array(...));

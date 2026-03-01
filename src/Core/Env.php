@@ -2,11 +2,12 @@
 
 namespace Nano\Core;
 
-class Env
+final class Env
 {
     private static array $env = [];
-
     private static bool $loaded = false;
+
+    private function __construct() {}
 
     public static function fetch(string $key): ?string
     {

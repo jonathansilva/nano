@@ -60,8 +60,9 @@ Toda Action deve, obrigatoriamente, implementar o método `handle`
 final readonly class LoginAction
 {
     public function __construct(
-        private AuthService $authService,
-        private LoginService $loginService
+        private AuthServiceInterface $authService,
+        private LoginServiceInterface $loginService,
+        private LoginMapperInterface $mapper
     ) {}
 
     public function handle($request, $response): void
@@ -76,19 +77,19 @@ final readonly class LoginAction
 
 ---
 
-Além de passar o `namespace` como uma string literal, o Nano suporta a resolução de nome de classe*
+O Nano aceita tanto o namespace como string quanto a resolução* via `::class`
 
 ```php
 // String literal
 $app->get('/', 'App\Actions\Page\ShowHomeAction');
 
-// Resolução de nome de classe
+// Resolução de nome
 use App\Actions\Page\ShowHomeAction;
 
 $app->get('/', ShowHomeAction::class);
 ```
 
-*Não há suporte no arquivo de rotas
+*Não há suporte em arquivo de rotas ( .xml )
 
 ## Routes file
 
@@ -240,7 +241,7 @@ $app->get(
 ```php
 final readonly class RoleMiddleware
 {
-    public function __construct(private UserService $service) {}
+    public function __construct(private UserServiceInterface $service) {}
 
     public function handle($request, $response, $args): void
     {
