@@ -2,8 +2,10 @@
 
 namespace Nano\Core\Security;
 
-class Sanitize
+final class Sanitize
 {
+    private function __construct() {}
+
     public static function data(array $data): object
     {
         return (object) array_filter(self::recursive($data), function ($key): bool {

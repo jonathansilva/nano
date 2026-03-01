@@ -5,13 +5,13 @@ namespace Nano\Core\View;
 use Nano\Core\Env;
 use Exception;
 
-class Template
+final class Template
 {
 	private static array $blocks = [];
-
     private static bool $cache;
-
 	private static string $cachePath = 'cache/';
+
+    private function __construct() {}
 
 	public static function render(string $file, ?array $data = []): void
     {

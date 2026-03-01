@@ -1,6 +1,6 @@
 # Request
 
-### `method(): string`
+### `getMethod(): string`
 
 Retorna o método HTTP da requisição
 

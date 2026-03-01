@@ -2,11 +2,12 @@
 
 namespace Nano\Core\Router;
 
-use Nano\Core\Security\{ Sanitize, Validator };
 use Nano\Core\{ Curl, Env };
+use Nano\Core\Router\InternalRequestInterface;
+use Nano\Core\Security\{ Sanitize, Validator };
 use Exception;
 
-class Request
+final class Request implements InternalRequestInterface
 {
     private array $cookie;
     private array $session;
@@ -28,7 +29,7 @@ class Request
         $this->session = $_SESSION ?? [];
     }
 
-    public function method(): string
+    public function getMethod(): string
 	{
 		return parse_url($_SERVER['REQUEST_METHOD'], PHP_URL_PATH);
 	}
@@ -55,13 +56,13 @@ class Request
 
     private function setData(): void
     {
-        if ($this->method() == 'OPTIONS') {
+        if ($this->getMethod() == 'OPTIONS') {
             header('HTTP/1.1 200 OK');
 
             die;
         }
 
-        if ($this->method() == 'GET') {
+        if ($this->getMethod() == 'GET') {
             return;
         }
 
@@ -81,7 +82,7 @@ class Request
         return $this->params;
     }
 
-    private function setParams(array|object $parameters): void
+    public function setParams(array|object $parameters): void
     {
         $this->params = (object) $parameters;
     }
@@ -178,20 +179,24 @@ class Request
 
     public function session(?string $key = null): string|array
     {
+        $currentSession = $_SESSION ?? [];
+
         if ($key) {
             if ($key == 'errors') {
-                return $this->session[$key] ?? [];
+                return $currentSession[$key] ?? [];
             }
 
-            return $this->session[$key] ?? '';
+            return $currentSession[$key] ?? '';
         }
 
-        return $this->session;
+        return $currentSession;
     }
 
     public function setSession(string $key, mixed $value): void
     {
         $_SESSION[$key] = $value;
+
+        $this->session[$key] = $value;
     }
 
     public function hasSession(string $key): bool

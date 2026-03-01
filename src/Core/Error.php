@@ -2,8 +2,10 @@
 
 namespace Nano\Core;
 
-class Error
+final class Error
 {
+    private function __construct() {}
+
     public static function parse(string|object $message): array|object
     {
         return (json_validate($message)) ? json_decode($message) : [$message];

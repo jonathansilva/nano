@@ -12,7 +12,7 @@ final readonly class CSRF
 {
     public function handle($request, $response): void
 	{
-        if ($request->method() == 'GET') {
+        if ($request->getMethod() == 'GET') {
             $request->setSession('path', $request->path());
             $request->setSession('csrf', bin2hex(random_bytes(32)));
 
@@ -43,7 +43,6 @@ final readonly class CSRF
 ```
 
 **Obs:** Por usar `$_SESSION` internamente na classe `Request`, é necessário que coloque `session_start();` no index.php
-
 </details>
 
 > Use como middleware
@@ -68,7 +67,6 @@ final readonly class ShowLoginFormAction
     }
 }
 ```
-
 </details>
 
 **AJAX ( axios / fetch )**
@@ -105,5 +103,4 @@ button.addEventListener('click', async event => {
     }
 });
 ```
-
 </details>

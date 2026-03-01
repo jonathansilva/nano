@@ -2,9 +2,10 @@
 
 namespace Nano\Core\Router;
 
+use Nano\Core\Router\ResponseInterface;
 use Nano\Core\View\Template;
 
-class Response
+final class Response implements ResponseInterface
 {
     public function view(string $file, ?array $data = []): ?Template
     {

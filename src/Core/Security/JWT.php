@@ -5,8 +5,10 @@ namespace Nano\Core\Security;
 use Nano\Core\Env;
 use Exception;
 
-class JWT
+final class JWT
 {
+    private function __construct() {}
+
     public static function encode(array $data): object
     {
         // Header

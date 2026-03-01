@@ -4,12 +4,14 @@ namespace Nano\Core\Security;
 
 use Exception;
 
-class Validator
+final class Validator
 {
     private static array $errors = [];
     private static array $attrs = [];
     private static object $data;
     private static string $lang;
+
+    private function __construct() {}
 
     public static function schema(object $data, array $rules, array $attrs, string $lang): false|array
     {

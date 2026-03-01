@@ -7,7 +7,7 @@ use PDO;
 use PDOException;
 use Exception;
 
-class Database
+final class Database
 {
     public static function instance(): PDO
     {
