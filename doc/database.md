@@ -1,6 +1,6 @@
 # Database
 
-Gerenciamento de conexões com o banco de dados via **PDO**. A configuração é definida através de [variáveis de ambiente](installation.md)
+Gerencia as conexões com o banco de dados via **PDO**. A configuração é definida através de [variáveis de ambiente](installation.md)
 
 **Injeção de dependência**
 
