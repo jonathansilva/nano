@@ -2,23 +2,23 @@
 
 ### `encode(array $data): object`
 
-Gera dois tokens ( access e refresh ) com parâmetros definidos por [variáveis de ambiente](installation.md). Os dados serão salvos no **payload** do *access token*
+Retorna dois tokens ( access e refresh ) com parâmetros definidos por [variáveis de ambiente](installation.md)
+
+**Obs:** Os dados são salvos no *payload* do access
 
 <details>
 <summary>Exemplo</summary>
 
 ```php
-final readonly class AuthService
+final readonly class AuthService implements AuthServiceInterface
 {
-    public function generateToken(UserEntity $user): string
+    public function generateToken(UserEntity $user): object
     {
         $payload = [
             'sub' => $user->id
         ];
 
-        $token = JWT::encode($payload);
-
-        return $token->access;
+        return JWT::encode($payload);
     }
 }
 ```
