@@ -2,14 +2,20 @@
 
 * Composer
 * PHP >= 8.4.0
-* MySQL
 * Nginx
 
-Certifique-se de que as extensões abaixo, estejam habilitadas no *php.ini*
+Certifique-se de que as extensões abaixo estejam habilitadas no *php.ini*
 
-* extension=pdo_mysql
 * extension=mbstring
 * extension=curl
+
+> Extensões de banco de dados ( PDO )
+
+Habilite a extensão referente ao tipo de banco que for utilizar
+
+* extension=pdo_mysql
+* extension=pdo_pgsql
+* extension=pdo_sqlite
 
 **Instalação**
 
@@ -62,7 +68,9 @@ Crie os arquivos `.env.example` e `.gitignore` na raiz do seu projeto
 .env.example
 
 ```
+DATABASE_TYPE=mysql
 DATABASE_HOST=localhost
+DATABASE_PORT=3306
 DATABASE_NAME=database
 DATABASE_USER=root
 DATABASE_PASS=password
