@@ -11,11 +11,11 @@ final class Instance
 
     public static function create(): Router
     {
-        $di = new Container();
+        $container = new Container();
 
-        $di->bind(RequestInterface::class, Request::class);
-        $di->bind(ResponseInterface::class, Response::class);
+        $container->bind(RequestInterface::class, Request::class);
+        $container->bind(ResponseInterface::class, Response::class);
 
-        return new Router($di);
+        return new Router($container);
     }
 }
