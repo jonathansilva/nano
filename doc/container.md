@@ -20,7 +20,7 @@ final readonly class StoreUserAction
 **Obs:** Para tipos primitivos como `string` ou `int`, forneça um valor padrão no construtor ou realize o mapeamento manual ( set )
 
 ```php
-final readonly class EmailService
+final readonly class EmailService implements EmailServiceInterface
 {
     public function __construct(
         private string $apiKey
@@ -58,11 +58,11 @@ Use o método `set()` para injetar instâncias específicas no Container. Isso p
 final class LoginActionTest extends TestCase
 {
     private Container $container;
-    private $requestMock;
-    private $responseMock;
-    private $mapperMock;
-    private $loginServiceMock;
-    private $authServiceMock;
+    private RequestInterface&MockObject $requestMock;
+    private ResponseInterface&MockObject $responseMock;
+    private LoginMapperInterface&MockObject $mapperMock;
+    private LoginServiceInterface&MockObject $loginServiceMock;
+    private AuthServiceInterface&MockObject $authServiceMock;
 
     protected function setUp(): void
     {
