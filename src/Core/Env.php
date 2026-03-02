@@ -27,7 +27,13 @@ final class Env
 
         $value = self::$env[$key] ?? null;
 
-        return is_string($value) ? trim($value) : null;
+        if (is_string($value)) {
+            $value = trim($value);
+
+            return $value === '' ? null : $value;
+        }
+
+        return null;
     }
 
     private static function loadEnvFile(): void
