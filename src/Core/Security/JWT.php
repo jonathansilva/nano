@@ -42,28 +42,36 @@ final class JWT
     public static function decode(string $token): false|object
     {
         $parts = explode('.', $token);
-        $header = base64_decode($parts[0] ?? '');
-        $payload = base64_decode($parts[1] ?? '');
-        $signatureProvided = $parts[2] ?? '';
 
-        $obj = json_decode($payload);
-
-        if (!$obj) {
+        if (count($parts) !== 3) {
             return false;
         }
 
-        $isTokenExpired = ($obj->exp ?? 0) - time() < 0;
+        $header = self::base64url_decode($parts[0]);
+        $header = json_decode($header, true);
+
+        if (!$header || ($header['alg'] ?? '') !== 'HS256' || ($header['typ'] ?? '') !== 'JWT') {
+            return false;
+        }
+
+        $payload = self::base64url_decode($parts[1]);
+
+        $obj = json_decode($payload);
+
+        if (!$obj || !isset($obj->exp)) {
+            return false;
+        }
+
+        if ($obj->exp < time()) {
+            return false;
+        }
 
         $key = self::getKey();
 
-        $base64UrlHeader = self::base64url_encode($header);
-        $base64UrlPayload = self::base64url_encode($payload);
-        $signature = hash_hmac('SHA256', "{$base64UrlHeader}.{$base64UrlPayload}", $key, true);
+        $signature = hash_hmac('SHA256', "{$parts[0]}.{$parts[1]}", $key, true);
         $base64UrlSignature = self::base64url_encode($signature);
 
-        $isSignatureValid = hash_equals($base64UrlSignature, $signatureProvided);
-
-        if ($isTokenExpired || !$isSignatureValid) {
+        if (!hash_equals($base64UrlSignature, $parts[2])) {
             return false;
         }
 
@@ -108,5 +116,19 @@ final class JWT
     private static function base64url_encode(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    private static function base64url_decode(string $data): string|false
+    {
+        $base64 = strtr($data, '-_', '+/');
+
+        $remainder = strlen($base64) % 4;
+
+        if ($remainder) {
+            $padlen = 4 - $remainder;
+            $base64 .= str_repeat('=', $padlen);
+        }
+
+        return base64_decode($base64, true);
     }
 }
